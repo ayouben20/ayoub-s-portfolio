@@ -1,7 +1,134 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useScrollToTop } from '../utils/scrollUtils';
+import Footer from '../components/Footer';
+
+// Keyframes for blob animation
+const moveBlob1 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(15px, 5px) scale(1.02); }
+`;
+
+const moveBlob2 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-15px, 25px) scale(0.98); }
+  50% { transform: translate(10px, -10px) scale(1.03); }
+  75% { transform: translate(-5px, -15px) scale(1); }
+`;
+
+const moveBlob3 = keyframes`
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(25px, 10px) rotate(5deg) scale(1.05); }
+  66% { transform: translate(-15px, -20px) rotate(-5deg) scale(0.95); }
+`;
+
+// Styled component for HERO background blobs
+const HeroAnimatedBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: ${props => props.theme.background === '#f4f3ef' 
+    ? 'linear-gradient(135deg, rgba(74, 144, 226, 0.70), rgba(108, 99, 255, 0.65))' // Much higher opacity
+    : 'linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(108, 99, 255, 0.08))' // Keep dark mode subtle
+  };
+  filter: ${props => props.theme.background === '#f4f3ef' 
+    ? 'blur(35px)' // Much less blur
+    : 'blur(40px)' // Keep dark mode blur
+  };
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: ${props => props.theme.background === '#f4f3ef' ? 'soft-light' : 'screen'}; 
+
+  &.blob1 {
+    width: 350px;
+    height: 350px;
+    top: 10%;
+    left: 15%;
+    animation: ${moveBlob1} 16s infinite alternate ease-in-out;
+  }
+
+  &.blob2 {
+    width: 300px;
+    height: 300px;
+    bottom: 10%;
+    right: 10%;
+    animation: ${moveBlob2} 19s infinite alternate ease-in-out;
+    animation-delay: -6s;
+    background: ${props => props.theme.background === '#f4f3ef'
+      ? 'linear-gradient(135deg, rgba(255, 107, 107, 0.70), rgba(255, 146, 43, 0.65))' // Much higher opacity
+      : 'linear-gradient(135deg, rgba(255, 107, 107, 0.08), rgba(255, 146, 43, 0.08))' // Keep dark mode subtle
+    };
+  }
+  
+  &.blob3 {
+    width: 220px;
+    height: 220px;
+    top: 60%; 
+    left: 30%; 
+    transform: translate(-50%, -50%);
+    animation: ${moveBlob3} 22s infinite alternate ease-in-out;
+    animation-delay: -9s;
+    background: ${props => props.theme.background === '#f4f3ef'
+      ? 'linear-gradient(135deg, rgba(99, 202, 183, 0.70), rgba(108, 170, 255, 0.70))' // Much higher opacity
+      : 'linear-gradient(135deg, rgba(99, 202, 183, 0.08), rgba(108, 170, 255, 0.08))' // Keep dark mode subtle
+    };
+    opacity: 1.0;
+  }
+  
+  @media (max-width: 768px) {
+    opacity: ${props => props.theme.background === '#f4f3ef' ? 0.9 : 0.7}; 
+    &.blob3 {
+      display: none;
+    }
+  }
+`;
+
+// Styled component for OTHER SECTION background blobs
+const SectionAnimatedBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: ${props => props.theme.background === '#f4f3ef' 
+    ? 'linear-gradient(135deg, rgba(74, 144, 226, 0.70), rgba(108, 99, 255, 0.65))' // Much higher opacity
+    : 'linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(108, 99, 255, 0.08))' // Keep dark mode subtle
+  };
+  filter: ${props => props.theme.background === '#f4f3ef' 
+    ? 'blur(35px)' // Much less blur
+    : 'blur(40px)' // Keep dark mode blur
+  };
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: ${props => props.theme.background === '#f4f3ef' ? 'soft-light' : 'screen'}; 
+  opacity: 1.0;
+
+  &.blob1 {
+    width: 350px;
+    height: 350px;
+    top: 10%;
+    left: 5%;
+    animation: ${moveBlob1} 18s infinite alternate ease-in-out;
+    animation-delay: -2s;
+  }
+
+  &.blob2 {
+    width: 280px;
+    height: 280px;
+    bottom: 15%;
+    right: 10%;
+    animation: ${moveBlob2} 20s infinite alternate ease-in-out;
+    animation-delay: -7s;
+    background: ${props => props.theme.background === '#f4f3ef'
+      ? 'linear-gradient(135deg, rgba(255, 107, 107, 0.70), rgba(255, 146, 43, 0.65))' // Much higher opacity
+      : 'linear-gradient(135deg, rgba(255, 107, 107, 0.08), rgba(255, 146, 43, 0.08))' // Keep dark mode subtle
+    };
+  }
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 const FullScreenSection = styled.div`
   width: 100%;
@@ -160,14 +287,37 @@ const Button = styled(motion.a)`
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  position: relative;
+  overflow: hidden;
 
   svg {
     margin-right: 0.5rem;
+    transition: transform 0.3s ease;
   }
+
+  ${props => props.primary && `
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.4s ease;
+    }
+
+    &:hover::before {
+      left: 100%;
+    }
+  `}
 
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    svg {
+      transform: rotate(10deg);
+    }
   }
 `;
 
@@ -220,20 +370,27 @@ const ProjectCard = styled(motion.div)`
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
   
   &:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px) rotate(1deg);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
   }
 `;
 
 const ProjectImage = styled.div`
   width: 100%;
-  height: 200px;
+  height: 220px;
   background-color: ${props => props.theme.background};
   background-size: cover;
   background-position: center;
+  transition: transform 0.4s ease;
+
+  ${ProjectCard}:hover & {
+    transform: scale(1.05);
+  }
 `;
 
 const ProjectContent = styled.div`
@@ -267,6 +424,8 @@ const ProjectType = styled.span`
 const SkillsSection = styled.div`
   background-color: ${props => props.theme.background === '#f4f3ef' ? '#f9f8f6' : '#1a1a1a'};
   padding: 6rem 2rem;
+  position: relative;
+  overflow: hidden;
   
   ${SectionTitle}, ${SectionSubtitle} {
     color: ${props => props.theme.background === '#f4f3ef' ? '#333' : '#fff'};
@@ -295,6 +454,9 @@ const SkillCard = styled(motion.div)`
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   text-align: center;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   
   &:hover {
     transform: translateY(-10px);
@@ -302,10 +464,15 @@ const SkillCard = styled(motion.div)`
   }
 `;
 
-const SkillIcon = styled.div`
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+const SkillIcon = styled(motion.div)`
+  font-size: 2.8rem;
+  margin-bottom: 1.2rem;
   color: ${props => props.color};
+  transition: transform 0.3s ease;
+
+  ${SkillCard}:hover & {
+    transform: scale(1.1) rotate(5deg);
+  }
 `;
 
 const SkillTitle = styled.h3`
@@ -366,124 +533,7 @@ const ViewAllLink = styled(Link)`
   }
 `;
 
-const Footer = styled.footer`
-  background-color: ${props => props.theme.text === '#333' ? '#222' : '#333'};
-  color: #fff;
-  padding: 3rem 2rem;
-`;
-
-const FooterContent = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 3rem;
-`;
-
-const FooterColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const FooterLogo = styled.div`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-`;
-
-const FooterText = styled.p`
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #aaa;
-  margin-bottom: 1rem;
-`;
-
-const FooterSocial = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-`;
-
-const SocialIcon = styled.a`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background-color: #4A90E2;
-    transform: translateY(-3px);
-  }
-`;
-
-const FooterTitle = styled.h3`
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  position: relative;
-  
-  &:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -8px;
-    width: 30px;
-    height: 2px;
-    background-color: #4A90E2;
-  }
-`;
-
-const FooterLinks = styled.ul`
-  list-style: none;
-  padding: 0;
-`;
-
-const FooterLink = styled.li`
-  margin-bottom: 0.8rem;
-  
-  a {
-    color: #aaa;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: block;
-    
-    &:hover {
-      color: #fff;
-      transform: translateX(5px);
-    }
-  }
-`;
-
-const FooterContactItem = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 1rem;
-  color: #aaa;
-  
-  svg {
-    margin-top: 5px;
-    flex-shrink: 0;
-  }
-`;
-
-const FooterBottom = styled.div`
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 1.5rem;
-  margin-top: 2rem;
-  text-align: center;
-  color: #aaa;
-  font-size: 0.9rem;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
+// Re-add the HeroSection styled component definition
 const HeroSection = styled.div`
   width: 100%;
   height: 100vh;
@@ -495,6 +545,8 @@ const HeroSection = styled.div`
   transition: background-color 0.3s ease;
   padding: 0 2rem;
   margin-top: 1cm;
+  position: relative;
+  overflow: hidden;
 `;
 
 // Page transition variants
@@ -519,8 +571,45 @@ const pageTransition = {
   duration: 0.5
 };
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.6,
+      ease: "easeInOut"
+    }
+  })
+};
+
+const textContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.3,
+    }
+  }
+};
+
+const textItemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
+
+  // Use the scroll to top hook
+  useScrollToTop();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -600,8 +689,11 @@ const Home = () => {
       variants={pageVariants}
       transition={pageTransition}
     >
-      {/* Hero Section (Restored to top) */}
+      {/* Hero Section - Add the blobs here */} 
       <HeroSection>
+        <HeroAnimatedBlob className="blob1" />
+        <HeroAnimatedBlob className="blob2" />
+        <HeroAnimatedBlob className="blob3" />
         <ProfileImageContainer>
           <ProfileFloatingEffect
             animate={{ 
@@ -689,37 +781,38 @@ const Home = () => {
           </ProfileFloatingEffect>
         </ProfileImageContainer>
         
-        <Name
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+        <motion.div
+          style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+          variants={textContainerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          Ayoub Benammour
-        </Name>
-        <Title
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          Web & Game Developer
-        </Title>
-        <BioText
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          A versatile developer with expertise in both web and game development. 
-          Delivering polished, user-centered experiences with a focus on clean code and 
-          engaging interfaces. Committed to creating memorable digital solutions that 
-          combine technical excellence with creative design.
-        </BioText>
+          <Name 
+            variants={textItemVariants}
+          >
+             Ayoub Benammour
+          </Name>
+          <Title 
+            variants={textItemVariants}
+          >
+            Web & Game Developer
+          </Title>
+          <BioText 
+             variants={textItemVariants}
+          >
+            A versatile developer with expertise in both web and game development. 
+            Delivering polished, user-centered experiences with a focus on clean code and 
+            engaging interfaces. Committed to creating memorable digital solutions that 
+            combine technical excellence with creative design.
+          </BioText>
+        </motion.div>
         <ButtonContainer>
           <Button
             href="/contact"
             primary={true}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -731,7 +824,7 @@ const Home = () => {
             href="/about"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
@@ -745,6 +838,9 @@ const Home = () => {
       
       {/* Featured Projects Section */}
       <SectionContainer>
+        {/* Add Section Blobs */}
+        <SectionAnimatedBlob className="blob1" style={{ top: '5%', left: '70%', width: '250px', height: '250px' }} /> 
+        <SectionAnimatedBlob className="blob2" style={{ bottom: '10%', left: '10%', width: '300px', height: '300px' }} />
         <SectionTitle
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -764,9 +860,11 @@ const Home = () => {
           {featuredProjects.map((project, index) => (
             <ProjectCard
               key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              custom={index}
             >
               <ProjectImage style={{ backgroundImage: `url(${project.image})` }} />
               <ProjectContent>
@@ -785,6 +883,9 @@ const Home = () => {
       
       {/* Skills Section */}
       <SkillsSection>
+        {/* Add Section Blobs */}
+        <SectionAnimatedBlob className="blob1" style={{ top: '20%', left: '10%', width: '300px', height: '300px' }} />
+        <SectionAnimatedBlob className="blob2" style={{ bottom: '5%', right: '5%', width: '350px', height: '350px' }} />
         <SkillsContainer>
           <SectionTitle
             initial={{ opacity: 0, y: 20 }}
@@ -805,9 +906,11 @@ const Home = () => {
             {skills.map((skill, index) => (
               <SkillCard
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={index}
                 whileHover={{ y: -10 }}
               >
                 <SkillIcon color={skill.color}>{skill.icon}</SkillIcon>
@@ -857,86 +960,8 @@ const Home = () => {
         </CTAButtonsContainer>
       </CTASection>
       
-      {/* Footer */}
-      <Footer>
-        <FooterContent>
-          <FooterColumn>
-            <FooterLogo>Ayoub Benammour</FooterLogo>
-            <FooterText>
-              Crafting exceptional digital experiences through web and game development. 
-              Let's bring your ideas to life with clean code and creative design.
-            </FooterText>
-            <FooterSocial>
-              <SocialIcon href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-                </svg>
-              </SocialIcon>
-              <SocialIcon href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                  <rect x="2" y="9" width="4" height="12"></rect>
-                  <circle cx="4" cy="4" r="2"></circle>
-                </svg>
-              </SocialIcon>
-              <SocialIcon href="https://github.com" target="_blank" rel="noopener noreferrer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                </svg>
-              </SocialIcon>
-            </FooterSocial>
-          </FooterColumn>
-          
-          <FooterColumn>
-            <FooterTitle>Quick Links</FooterTitle>
-            <FooterLinks>
-              <FooterLink><Link to="/">Home</Link></FooterLink>
-              <FooterLink><Link to="/about">About</Link></FooterLink>
-              <FooterLink><Link to="/services">Services</Link></FooterLink>
-              <FooterLink><Link to="/projects">Projects</Link></FooterLink>
-              <FooterLink><Link to="/contact">Contact</Link></FooterLink>
-            </FooterLinks>
-          </FooterColumn>
-          
-          <FooterColumn>
-            <FooterTitle>Services</FooterTitle>
-            <FooterLinks>
-              <FooterLink><Link to="/web-development">Web Development</Link></FooterLink>
-              <FooterLink><Link to="/game-development">Game Development</Link></FooterLink>
-              <FooterLink><Link to="/services">UI/UX Design</Link></FooterLink>
-              <FooterLink><Link to="/services">Responsive Design</Link></FooterLink>
-            </FooterLinks>
-          </FooterColumn>
-          
-          <FooterColumn>
-            <FooterTitle>Contact Info</FooterTitle>
-            <FooterContactItem>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-              </svg>
-              <span>+1 234 567 890</span>
-            </FooterContactItem>
-            <FooterContactItem>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                <polyline points="22,6 12,13 2,6"></polyline>
-              </svg>
-              <span>your.email@example.com</span>
-            </FooterContactItem>
-            <FooterContactItem>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              <span>Your City, Country</span>
-            </FooterContactItem>
-          </FooterColumn>
-        </FooterContent>
-        
-        <FooterBottom>
-          &copy; {new Date().getFullYear()} Ayoub Benammour. All rights reserved.
-        </FooterBottom>
-      </Footer>
+      {/* Footer JSX removed, replaced by <Footer /> component import */}
+      <Footer />
     </motion.div>
   );
 };

@@ -1,12 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiArrowUp, FiMapPin, FiMail, FiPhone } from 'react-icons/fi';
+import { FiArrowUp, FiMapPin, FiMail, FiPhone, FiGithub, FiLinkedin, FiTwitter } from 'react-icons/fi';
+import { useScrollToTop } from '../utils/scrollUtils';
+import Footer from '../components/Footer';
+
+// Keyframes for blob animation
+const moveBlob1 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(15px, 5px) scale(1.02); }
+`;
+
+const moveBlob2 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-15px, 25px) scale(0.98); }
+  50% { transform: translate(10px, -10px) scale(1.03); }
+  75% { transform: translate(-5px, -15px) scale(1); }
+`;
+
+const moveBlob3 = keyframes`
+  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  33% { transform: translate(25px, 10px) rotate(5deg) scale(1.05); }
+  66% { transform: translate(-15px, -20px) rotate(-5deg) scale(0.95); }
+`;
+
+// Styled component for background blobs
+const AnimatedBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: ${props => props.theme.background === '#f4f3ef' 
+    ? 'linear-gradient(135deg, rgba(74, 144, 226, 0.18), rgba(108, 99, 255, 0.15))'
+    : 'linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(108, 99, 255, 0.08))'
+  };
+  filter: ${props => props.theme.background === '#f4f3ef' 
+    ? 'blur(60px)'
+    : 'blur(40px)'
+  };
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: ${props => props.theme.background === '#f4f3ef' ? 'multiply' : 'screen'};
+
+  &.blob1 {
+    width: 300px;
+    height: 300px;
+    top: 15%;
+    left: 10%;
+    animation: ${moveBlob1} 15s infinite alternate ease-in-out;
+  }
+
+  &.blob2 {
+    width: 250px;
+    height: 250px;
+    bottom: 20%;
+    right: 15%;
+    animation: ${moveBlob2} 18s infinite alternate ease-in-out;
+    animation-delay: -5s;
+    background: ${props => props.theme.background === '#f4f3ef'
+      ? 'linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 146, 43, 0.15))'
+      : 'linear-gradient(135deg, rgba(255, 107, 107, 0.08), rgba(255, 146, 43, 0.08))'
+    };
+  }
+  
+  &.blob3 {
+    width: 200px;
+    height: 200px;
+    top: 50%;
+    left: 45%;
+    transform: translate(-50%, -50%);
+    animation: ${moveBlob3} 20s infinite alternate ease-in-out;
+    animation-delay: -8s;
+    background: ${props => props.theme.background === '#f4f3ef'
+      ? 'linear-gradient(135deg, rgba(99, 202, 183, 0.12), rgba(108, 170, 255, 0.12))'
+      : 'linear-gradient(135deg, rgba(99, 202, 183, 0.08), rgba(108, 170, 255, 0.08))'
+    };
+    opacity: 0.8;
+  }
+  
+  @media (max-width: 768px) {
+    opacity: 0.7;
+    &.blob3 {
+      display: none;
+    }
+  }
+`;
 
 const ContactContainer = styled.div`
-  padding: 8rem 2rem 4rem;
-  max-width: 1200px;
+  padding: 6rem 2rem 4rem;
+  max-width: 1100px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 100px);
+  justify-content: center;
 `;
 
 const SectionTitle = styled(motion.h2)`
@@ -30,10 +119,12 @@ const SectionSubtitle = styled(motion.p)`
 const ContactContent = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 3rem;
+  align-items: center;
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 2.5rem;
   }
 `;
 
@@ -108,12 +199,18 @@ const SocialLink = styled.a`
 
 const ContactForm = styled(motion.form)`
   background: ${props => props.theme.cardBackground};
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: ${props => props.theme.shadow};
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  border: 1px solid ${props => props.theme.borderColor};
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const FormGroup = styled.div`
@@ -124,59 +221,128 @@ const FormGroup = styled.div`
 
 const Label = styled.label`
   font-size: 0.9rem;
-  color: ${props => props.theme.text};
   font-weight: 500;
+  color: ${props => props.theme.text};
+`;
+
+const InputBase = `
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid ${props => props.theme.borderColor};
+  border-radius: 6px;
+  font-size: 1rem;
+  color: ${props => props.theme.text};
+  background-color: ${props => props.theme.inputBackground || props.theme.background};
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.primary};
+    box-shadow: 0 0 0 3px ${props => props.theme.primary}33;
+  }
 `;
 
 const Input = styled.input`
-  padding: 0.75rem;
-  border: 1px solid ${props => props.theme.border || '#e0e0e0'};
-  border-radius: 4px;
-  font-size: 1rem;
-  color: ${props => props.theme.text};
-  background-color: ${props => props.theme.background};
-  
-  &:focus {
-    outline: none;
-    border-color: #4A90E2;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  ${InputBase}
+  &::placeholder {
+    color: ${props => props.theme.textSecondary};
+    opacity: 0.7;
   }
 `;
 
 const TextArea = styled.textarea`
-  padding: 0.75rem;
-  border: 1px solid ${props => props.theme.border || '#e0e0e0'};
-  border-radius: 4px;
-  font-size: 1rem;
-  color: ${props => props.theme.text};
-  background-color: ${props => props.theme.background};
-  min-height: 150px;
+  ${InputBase}
+  min-height: 130px;
   resize: vertical;
-  
-  &:focus {
-    outline: none;
-    border-color: #4A90E2;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  &::placeholder {
+    color: ${props => props.theme.textSecondary};
+    opacity: 0.7;
   }
 `;
 
 const SubmitButton = styled.button`
-  background: #4A90E2;
-  color: white;
+  background: ${props => props.theme.primary};
+  color: ${props => props.theme.buttonText || 'white'};
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
+  padding: 0.8rem 1.7rem;
+  border-radius: 6px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
   align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   
+  svg {
+    transition: transform 0.3s ease;
+  }
+
   &:hover {
-    background: #3a80d2;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+    background: ${props => props.theme.primaryHover || '#3a80d2'};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 `;
+
+// Page transition variants
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20
+  },
+  in: {
+    opacity: 1,
+    y: 0
+  },
+  exit: {
+    opacity: 0,
+    y: -20
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.3,
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
+// Animation for form fields
+const fieldVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -187,6 +353,9 @@ const Contact = () => {
   });
   
   const [showScrollTop, setShowScrollTop] = useState(false);
+  
+  // Use the scroll to top hook
+  useScrollToTop();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -196,6 +365,12 @@ const Contact = () => {
       } else {
         setShowScrollTop(false);
       }
+      
+      // Send event to parent to show navbar - ALWAYS SHOW
+      const event = new CustomEvent('navbar-visibility', { 
+        detail: { visible: true }
+      });
+      window.dispatchEvent(event);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -204,13 +379,6 @@ const Contact = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -222,173 +390,175 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
     console.log(formData);
+    alert("Thank you for your message! I'll get back to you soon.");
+    setFormData({ name: '', email: '', subject: '', message: '' });
   };
 
   return (
-    <ContactContainer>
-      <SectionTitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Contact Me
-      </SectionTitle>
-      <SectionSubtitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        Have a project in mind or want to discuss collaboration opportunities? Get in touch!
-      </SectionSubtitle>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      {/* Animated Background Blobs */}
+      <AnimatedBlob className="blob1" />
+      <AnimatedBlob className="blob2" />
+      <AnimatedBlob className="blob3" />
       
-      <ContactContent>
-        <ContactInfo>
-          <InfoItem
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <InfoIcon>📍</InfoIcon>
-            <InfoContent>
-              <InfoTitle>Location</InfoTitle>
-              <InfoText>Your City, Country</InfoText>
-            </InfoContent>
-          </InfoItem>
-          
-          <InfoItem
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            <InfoIcon>📧</InfoIcon>
-            <InfoContent>
-              <InfoTitle>Email</InfoTitle>
-              <InfoText>your.email@example.com</InfoText>
-            </InfoContent>
-          </InfoItem>
-          
-          <InfoItem
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <InfoIcon>📱</InfoIcon>
-            <InfoContent>
-              <InfoTitle>Phone</InfoTitle>
-              <InfoText>+1 234 567 890</InfoText>
-            </InfoContent>
-          </InfoItem>
-          
-          <InfoItem
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <InfoIcon>🕒</InfoIcon>
-            <InfoContent>
-              <InfoTitle>Working Hours</InfoTitle>
-              <InfoText>Monday - Friday, 9AM - 6PM</InfoText>
-            </InfoContent>
-          </InfoItem>
-          
-          <SocialLinks>
-            <SocialLink 
-              href="https://twitter.com" 
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ y: -5 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-              </svg>
-            </SocialLink>
-            <SocialLink 
-              href="https://linkedin.com" 
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ y: -5 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                <rect x="2" y="9" width="4" height="12"></rect>
-                <circle cx="4" cy="4" r="2"></circle>
-              </svg>
-            </SocialLink>
-            <SocialLink 
-              href="https://github.com" 
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ y: -5 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-              </svg>
-            </SocialLink>
-          </SocialLinks>
-        </ContactInfo>
-        
-        <ContactForm
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          onSubmit={handleSubmit}
+      <ContactContainer>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <FormGroup>
-            <Label htmlFor="name">Name</Label>
-            <Input 
-              type="text" 
-              id="name" 
-              name="name" 
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </FormGroup>
+          <SectionTitle variants={itemVariants}>
+            Contact Me
+          </SectionTitle>
+          <SectionSubtitle variants={itemVariants}>
+            Have a project in mind or want to discuss collaboration opportunities? Get in touch!
+          </SectionSubtitle>
+        </motion.div>
+        
+        <ContactContent>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <ContactInfo>
+              <InfoItem variants={itemVariants}>
+                <InfoIcon>
+                  <motion.div 
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                  >
+                    <FiMapPin />
+                  </motion.div>
+                </InfoIcon>
+                <InfoContent>
+                  <InfoTitle>Location</InfoTitle>
+                  <InfoText>Casablanca, Morocco</InfoText>
+                </InfoContent>
+              </InfoItem>
+              
+              <InfoItem variants={itemVariants}>
+                <InfoIcon>
+                  <motion.div 
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+                  >
+                    <FiMail />
+                  </motion.div>
+                </InfoIcon>
+                <InfoContent>
+                  <InfoTitle>Email</InfoTitle>
+                  <InfoText>ayoub.benammour.pro@gmail.com</InfoText>
+                </InfoContent>
+              </InfoItem>
+              
+              <InfoItem variants={itemVariants}>
+                <InfoIcon>
+                  <motion.div 
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 1.8, repeat: Infinity, repeatType: "reverse" }}
+                  >
+                    <FiPhone />
+                  </motion.div>
+                </InfoIcon>
+                <InfoContent>
+                  <InfoTitle>Phone</InfoTitle>
+                  <InfoText>+212 6 12 34 56 78</InfoText>
+                </InfoContent>
+              </InfoItem>
+              
+              <SocialLinks
+                as={motion.div}
+                variants={itemVariants}
+              >
+                <SocialLink href="https://github.com/ayoub-benammour" target="_blank" rel="noopener noreferrer" as={motion.a} whileHover={{ scale: 1.1, y: -5 }} transition={{ duration: 0.2 }}>
+                  <FiGithub />
+                </SocialLink>
+                <SocialLink href="https://linkedin.com/in/ayoub-benammour" target="_blank" rel="noopener noreferrer" as={motion.a} whileHover={{ scale: 1.1, y: -5 }} transition={{ duration: 0.2 }}>
+                  <FiLinkedin />
+                </SocialLink>
+                <SocialLink href="https://twitter.com/ayoub_benammour" target="_blank" rel="noopener noreferrer" as={motion.a} whileHover={{ scale: 1.1, y: -5 }} transition={{ duration: 0.2 }}>
+                  <FiTwitter />
+                </SocialLink>
+              </SocialLinks>
+            </ContactInfo>
+          </motion.div>
           
-          <FormGroup>
-            <Label htmlFor="email">Email</Label>
-            <Input 
-              type="email" 
-              id="email" 
-              name="email" 
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label htmlFor="subject">Subject</Label>
-            <Input 
-              type="text" 
-              id="subject" 
-              name="subject" 
-              value={formData.subject}
-              onChange={handleChange}
-              required
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label htmlFor="message">Message</Label>
-            <TextArea 
-              id="message" 
-              name="message" 
-              value={formData.message}
-              onChange={handleChange}
-              required
-            />
-          </FormGroup>
-          
-          <SubmitButton type="submit">Send Message</SubmitButton>
-        </ContactForm>
-      </ContactContent>
-    </ContactContainer>
+          <motion.div>
+            <ContactForm onSubmit={handleSubmit}>
+              <FormGroup>
+                <Label htmlFor="name">Name</Label>
+                <Input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  value={formData.name} 
+                  onChange={handleChange} 
+                  required 
+                  placeholder="Enter your name"
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  value={formData.email} 
+                  onChange={handleChange} 
+                  required 
+                  placeholder="Enter your email address"
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="subject">Subject</Label>
+                <Input 
+                  type="text" 
+                  id="subject" 
+                  name="subject" 
+                  value={formData.subject} 
+                  onChange={handleChange} 
+                  required 
+                  placeholder="What is the subject?"
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="message">Message</Label>
+                <TextArea 
+                  id="message" 
+                  name="message" 
+                  value={formData.message} 
+                  onChange={handleChange} 
+                  required 
+                  placeholder="Your message here..."
+                />
+              </FormGroup>
+              
+              <SubmitButton 
+                type="submit"
+                as={motion.button} 
+                whileHover={{ /* Handled by CSS */ }}
+                whileTap={{ /* Handled by CSS */ }}
+              >
+                Send Message <FiArrowUp />
+              </SubmitButton>
+            </ContactForm>
+          </motion.div>
+        </ContactContent>
+      </ContactContainer>
+      
+      <Footer />
+    </motion.div>
   );
 };
 

@@ -1,11 +1,62 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
+import { useScrollToTop } from '../utils/scrollUtils';
+import Footer from '../components/Footer';
+
+// Keyframes for blob animation
+const moveBlob1 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(15px, 5px) scale(1.02); }
+`;
+
+const moveBlob2 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-15px, 25px) scale(0.98); }
+  50% { transform: translate(10px, -10px) scale(1.03); }
+  75% { transform: translate(-5px, -15px) scale(1); }
+`;
+
+// Styled component for background blobs
+const AnimatedBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(108, 99, 255, 0.1));
+  filter: blur(50px); // Soft blur effect
+  z-index: 0; // Behind content
+  pointer-events: none; // Make it non-interactive
+
+  &.blob1 {
+    width: 350px;
+    height: 350px;
+    top: 10%;
+    left: 5%;
+    animation: ${moveBlob1} 15s infinite alternate ease-in-out;
+  }
+
+  &.blob2 {
+    width: 280px;
+    height: 280px;
+    bottom: 15%;
+    right: 10%;
+    animation: ${moveBlob2} 18s infinite alternate ease-in-out;
+    animation-delay: -5s; // Offset animation start
+  }
+  
+  // Hide blobs on smaller screens where they might be too distracting
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 const ServicesContainer = styled.div`
   padding: 8rem 2rem 4rem;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
 `;
 
 const SectionTitle = styled(motion.h2)`
@@ -198,7 +249,72 @@ const StepDescription = styled.p`
   line-height: 1.6;
 `;
 
+// Page transition variants
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20
+  },
+  in: {
+    opacity: 1,
+    y: 0
+  },
+  exit: {
+    opacity: 0,
+    y: -20
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.3,
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.6,
+      ease: "easeInOut"
+    }
+  })
+};
+
+const spinTransition = {
+  loop: Infinity,
+  ease: "linear",
+  duration: 10
+};
+
 const Services = () => {
+  // Use the scroll to top hook
+  useScrollToTop();
+
   const services = [
     {
       title: "Web Development",
@@ -258,62 +374,148 @@ const Services = () => {
     }
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      // Send event to parent to show navbar - ALWAYS SHOW
+      const event = new CustomEvent('navbar-visibility', { 
+        detail: { visible: true }
+      });
+      window.dispatchEvent(event);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <ServicesContainer>
-      <SectionTitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Services
-      </SectionTitle>
-      <SectionSubtitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        Professional development services tailored to bring your ideas to life with quality and precision.
-      </SectionSubtitle>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      {/* Animated Background Blobs */}
+      <AnimatedBlob className="blob1" />
+      <AnimatedBlob className="blob2" />
       
-      <ServicesGrid>
-        {services.map((service, index) => (
-          <ServiceCard
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 * index }}
-          >
-            <ServiceIcon>{service.icon}</ServiceIcon>
-            <ServiceTitle>{service.title}</ServiceTitle>
-            <ServiceDescription>{service.description}</ServiceDescription>
-            <ServiceFeatures>
-              {service.features.map((feature, featureIndex) => (
-                <ServiceFeature key={featureIndex}>{feature}</ServiceFeature>
-              ))}
-            </ServiceFeatures>
-            <ServiceButton href="#">Learn More</ServiceButton>
-          </ServiceCard>
-        ))}
-      </ServicesGrid>
-      
-      <ProcessSection>
-        <ProcessTitle>My Work Process</ProcessTitle>
-        <ProcessSteps>
-          {processSteps.map((step, index) => (
-            <ProcessStep
+      <ServicesContainer>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <SectionTitle variants={itemVariants}>
+            Services
+          </SectionTitle>
+          <SectionSubtitle variants={itemVariants}>
+            Professional development services tailored to bring your ideas to life with quality and precision.
+          </SectionSubtitle>
+        </motion.div>
+        
+        <ServicesGrid>
+          {services.map((service, index) => (
+            <ServiceCard
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
+              variants={cardVariants}
+              custom={index}
+              initial="hidden"
+              animate="visible"
+              whileHover={{ 
+                y: -10, 
+                scale: 1.02,
+                boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)"
+              }}
             >
-              <StepNumber>{step.number}</StepNumber>
-              <StepTitle>{step.title}</StepTitle>
-              <StepDescription>{step.description}</StepDescription>
-            </ProcessStep>
+              <ServiceIcon>
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: "reverse"
+                  }}
+                >
+                  {service.icon}
+                </motion.div>
+              </ServiceIcon>
+              <ServiceTitle>{service.title}</ServiceTitle>
+              <ServiceDescription>{service.description}</ServiceDescription>
+              <ServiceFeatures>
+                {service.features.map((feature, featureIndex) => (
+                  <ServiceFeature 
+                    key={featureIndex}
+                    as={motion.li}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + (0.1 * featureIndex) }}
+                  >
+                    {feature}
+                  </ServiceFeature>
+                ))}
+              </ServiceFeatures>
+              <ServiceButton 
+                as={motion.a}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                href="#"
+              >
+                Learn More
+              </ServiceButton>
+            </ServiceCard>
           ))}
-        </ProcessSteps>
-      </ProcessSection>
-    </ServicesContainer>
+        </ServicesGrid>
+        
+        <ProcessSection>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={itemVariants}
+          >
+            <ProcessTitle>My Work Process</ProcessTitle>
+          </motion.div>
+          
+          <ProcessSteps>
+            {processSteps.map((step, index) => (
+              <ProcessStep
+                key={index}
+                variants={cardVariants}
+                custom={index}
+                initial="hidden"
+                animate="visible"
+              >
+                <StepNumber>
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      delay: index * 0.5
+                    }}
+                  >
+                    {step.number}
+                  </motion.div>
+                </StepNumber>
+                <StepTitle>{step.title}</StepTitle>
+                <StepDescription>{step.description}</StepDescription>
+              </ProcessStep>
+            ))}
+          </ProcessSteps>
+        </ProcessSection>
+      </ServicesContainer>
+      
+      <Footer />
+    </motion.div>
   );
 };
 

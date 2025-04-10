@@ -1,12 +1,75 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
+import { useScrollToTop } from '../utils/scrollUtils';
+import Footer from '../components/Footer';
+
+// Keyframes for blob animation with darker colors for game dev theme
+const moveBlob1 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(15px, 5px) scale(1.02); }
+`;
+
+const moveBlob2 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-15px, 25px) scale(0.98); }
+  50% { transform: translate(10px, -10px) scale(1.03); }
+  75% { transform: translate(-5px, -15px) scale(1); }
+`;
+
+// Styled component for background blobs with game-themed colors
+const AnimatedBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(80, 70, 230, 0.12));
+  filter: blur(80px); // More blur for a glow effect
+  z-index: 0; // Behind content
+  pointer-events: none; // Make it non-interactive
+
+  &.blob1 {
+    width: 450px;
+    height: 450px;
+    top: 10%;
+    left: 5%;
+    animation: ${moveBlob1} 18s infinite alternate ease-in-out;
+  }
+
+  &.blob2 {
+    width: 380px;
+    height: 380px;
+    bottom: 30%;
+    right: 10%;
+    animation: ${moveBlob2} 22s infinite alternate ease-in-out;
+    animation-delay: -7s; // Offset animation start
+  }
+  
+  &.blob3 {
+    width: 300px;
+    height: 300px;
+    bottom: 10%;
+    left: 20%;
+    animation: ${moveBlob1} 15s infinite alternate ease-in-out;
+    animation-delay: -5s;
+    background: linear-gradient(135deg, rgba(240, 101, 47, 0.08), rgba(255, 131, 84, 0.08));
+  }
+  
+  // Hide blobs on smaller screens where they might be too distracting
+  @media (max-width: 768px) {
+    opacity: 0.5;
+    width: 250px;
+    height: 250px;
+  }
+`;
 
 const GameDevContainer = styled.div`
   padding: 8rem 2rem 4rem;
   max-width: 1200px;
   margin: 0 auto;
   color: ${props => props.theme.text};
+  position: relative;
+  overflow: hidden;
 `;
 
 const SectionTitle = styled(motion.h2)`
@@ -391,7 +454,77 @@ const InspirationImage = styled(motion.div)`
   }
 `;
 
+// Page transition variants
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20
+  },
+  in: {
+    opacity: 1,
+    y: 0
+  },
+  exit: {
+    opacity: 0,
+    y: -20
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.3,
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.6,
+      ease: "easeInOut"
+    }
+  })
+};
+
+// Game-specific floating animation
+const floatAnimation = {
+  y: [0, -10, 0],
+  rotate: [0, 2, 0, -2, 0],
+  transition: {
+    duration: 6,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+};
+
 const GameDevelopment = () => {
+  // Use the scroll to top hook
+  useScrollToTop();
+  
   // We'll use componentDidMount to dispatch a custom event to set dark theme
   useEffect(() => {
     // Send an event to App.js to set theme to dark
@@ -496,225 +629,361 @@ const GameDevelopment = () => {
   ];
 
   return (
-    <GameDevContainer>
-      <SectionTitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Game Development
-      </SectionTitle>
-      <SectionSubtitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        Bringing interactive worlds to life through innovative gameplay, immersive storytelling, and technical excellence
-      </SectionSubtitle>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      {/* Animated Background Blobs */}
+      <AnimatedBlob className="blob1" />
+      <AnimatedBlob className="blob2" />
+      <AnimatedBlob className="blob3" />
       
-      <IntroSection>
-        <IntroContent>
-          <IntroText>
-            <h3>Crafting Interactive Experiences</h3>
-            <p>
-              My journey in game development began with a fascination for creating interactive worlds that blend art, storytelling, and technology. I specialize in designing engaging gameplay systems and implementing them with clean, efficient code.
-            </p>
-            <p>
-              With experience in both 2D and 3D game development, I've worked on projects across various genres including puzzle games, platformers, RPGs, and simulation games. My approach focuses on player experience first, ensuring games are both fun and technically solid.
-            </p>
-            <p>
-              I'm particularly passionate about procedural generation, AI systems, and creating games with emergent gameplay where players can discover unique ways to interact with the game world.
-            </p>
-          </IntroText>
-          <IntroImage
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-          >
-            <img src="/images/game-dev-intro.jpg" alt="Game Development Workspace" />
-          </IntroImage>
-        </IntroContent>
-      </IntroSection>
-      
-      <ProjectsSection>
-        <SectionTitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+      <GameDevContainer>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          Featured Projects
-        </SectionTitle>
-        <SectionSubtitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          Explore my most significant game development projects, highlighting different skills and technologies
-        </SectionSubtitle>
+          <SectionTitle variants={itemVariants}>
+            Game Development
+          </SectionTitle>
+          <SectionSubtitle variants={itemVariants}>
+            Bringing interactive worlds to life through innovative gameplay, immersive storytelling, and technical excellence
+          </SectionSubtitle>
+        </motion.div>
         
-        {gameProjects.map((project, index) => (
-          <ProjectCard
-            key={index}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 * index }}
-          >
-            <ProjectImage>
-              <img src={project.image} alt={project.title} />
-            </ProjectImage>
-            <ProjectContent>
-              <ProjectTitle>{project.title}</ProjectTitle>
-              <ProjectDescription>{project.description}</ProjectDescription>
-              <TechStack>
-                {project.technologies.map((tech, techIndex) => (
-                  <TechTag key={techIndex}>{tech}</TechTag>
-                ))}
-              </TechStack>
-              <ProjectLinks>
-                <ProjectLink href={project.demoLink} target="_blank" rel="noopener noreferrer" primary>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"></path>
-                    <path d="M10 8.5l5 3.5-5 3.5V8.5z"></path>
-                  </svg>
-                  Play Demo
-                </ProjectLink>
-                <ProjectLink href={project.codeLink} target="_blank" rel="noopener noreferrer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                  </svg>
-                  View Code
-                </ProjectLink>
-              </ProjectLinks>
-            </ProjectContent>
-          </ProjectCard>
-        ))}
-      </ProjectsSection>
-      
-      <SkillsSection>
-        <SectionTitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          Game Development Skills
-        </SectionTitle>
-        <SectionSubtitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          Technical capabilities I've developed through years of creating games and interactive experiences
-        </SectionSubtitle>
-        
-        <SkillsGrid>
-          {gameSkills.map((skill, index) => (
-            <SkillCard
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
-              whileHover={{ y: -10, transition: { duration: 0.2 } }}
+        <IntroSection>
+          <IntroContent>
+            <motion.div
+              initial={{ opacity: 1, x: 0 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7 }}
             >
-              <h4>
-                <span>{skill.icon}</span> {skill.name}
-              </h4>
-              <p>{skill.description}</p>
-              <ProgressBar progress={skill.progress}>
-                <div></div>
-              </ProgressBar>
-            </SkillCard>
-          ))}
-        </SkillsGrid>
-      </SkillsSection>
-      
-      <DemoSection>
-        <SectionTitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          Playable Demos
-        </SectionTitle>
-        <SectionSubtitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          Try out some of my smaller game projects directly in your browser
-        </SectionSubtitle>
-        
-        <DemosGrid>
-          {gameDemos.map((demo, index) => (
-            <DemoCard
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
-              whileHover={{ y: -10, transition: { duration: 0.2 } }}
+              <IntroText>
+                <h3>Crafting Interactive Experiences</h3>
+                <p>
+                  My journey in game development began with a fascination for creating interactive worlds that blend art, storytelling, and technology. I specialize in designing engaging gameplay systems and implementing them with clean, efficient code.
+                </p>
+                <p>
+                  With experience in both 2D and 3D game development, I've worked on projects across various genres including puzzle games, platformers, RPGs, and simulation games. My approach focuses on player experience first, ensuring games are both fun and technically solid.
+                </p>
+                <p>
+                  I'm particularly passionate about procedural generation, AI systems, and creating games with emergent gameplay where players can discover unique ways to interact with the game world.
+                </p>
+              </IntroText>
+            </motion.div>
+            
+            <motion.div
+              animate={floatAnimation}
             >
-              <DemoImage>
-                <img src={demo.image} alt={demo.title} />
-              </DemoImage>
-              <DemoContent>
-                <h4>{demo.title}</h4>
-                <p>{demo.description}</p>
-                <PlayButton href={demo.playLink} target="_blank" rel="noopener noreferrer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  </svg>
-                  Play Now
-                </PlayButton>
-              </DemoContent>
-            </DemoCard>
-          ))}
-        </DemosGrid>
-      </DemoSection>
-      
-      <InspirationSection>
-        <SectionTitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          Journey & Inspiration
-        </SectionTitle>
-        <SectionSubtitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          The path that led me to game development and what continues to inspire my work
-        </SectionSubtitle>
+              <IntroImage
+                initial={{ opacity: 1, x: 0 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7 }}
+                whileHover={{ scale: 1.05, rotate: 2 }}
+              >
+                <img src="/images/game-dev-intro.jpg" alt="Game Development Workspace" />
+              </IntroImage>
+            </motion.div>
+          </IntroContent>
+        </IntroSection>
         
-        <InspirationContent>
-          <InspirationText>
-            <h3>My Development Journey</h3>
-            <p>
-              My passion for game development began with modding existing games, which taught me the fundamentals of game mechanics and level design. Since then, I've continuously expanded my skills through formal education, online courses, and practical experience working on both solo and team projects.
-            </p>
-            <p>
-              Some key influences that continue to inspire my work include:
-            </p>
-            <ul>
-              <li>The emergent gameplay of immersive sims like Deus Ex and Dishonored</li>
-              <li>The elegant design philosophy of Nintendo's first-party titles</li>
-              <li>The storytelling innovations of indie games like Journey and Undertale</li>
-              <li>The technical achievements of studios like Naughty Dog and id Software</li>
-            </ul>
-            <p>
-              I believe games are the most powerful medium for interactive storytelling and creating meaningful experiences that can educate, inspire, and bring people together.
-            </p>
-          </InspirationText>
-          <InspirationImage
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+        <ProjectsSection>
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
           >
-            <img src="/images/game-inspiration.jpg" alt="Game Development Inspiration" />
-          </InspirationImage>
-        </InspirationContent>
-      </InspirationSection>
-    </GameDevContainer>
+            <SectionTitle 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              Featured Projects
+            </SectionTitle>
+            <SectionSubtitle
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              Explore my most significant game development projects, highlighting different skills and technologies
+            </SectionSubtitle>
+          </motion.div>
+          
+          {gameProjects.map((project, index) => (
+            <ProjectCard
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.6, 
+                delay: 0.2 * index 
+              }}
+              whileHover={{ 
+                y: -10,
+                transition: { duration: 0.3 }
+              }}
+            >
+              <ProjectImage>
+                <img src={project.image} alt={project.title} />
+              </ProjectImage>
+              <ProjectContent>
+                <ProjectTitle>{project.title}</ProjectTitle>
+                <ProjectDescription>{project.description}</ProjectDescription>
+                <TechStack>
+                  {project.technologies.map((tech, techIndex) => (
+                    <TechTag 
+                      key={techIndex}
+                      as={motion.span}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5 + (0.1 * techIndex) }}
+                      whileHover={{ 
+                        y: -5, 
+                        backgroundColor: '#6C63FF',
+                        color: 'white',
+                        transition: { duration: 0.2 }
+                      }}
+                    >
+                      {tech}
+                    </TechTag>
+                  ))}
+                </TechStack>
+                <ProjectLinks>
+                  <ProjectLink 
+                    href={project.demoLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    primary
+                    as={motion.a}
+                    whileHover={{ 
+                      scale: 1.05,
+                      y: -5,
+                      boxShadow: "0 10px 25px rgba(108, 99, 255, 0.3)",
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"></path>
+                      <path d="M10 8.5l5 3.5-5 3.5V8.5z"></path>
+                    </svg>
+                    Play Demo
+                  </ProjectLink>
+                  <ProjectLink 
+                    href={project.codeLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    as={motion.a}
+                    whileHover={{ 
+                      scale: 1.05,
+                      y: -5
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                    View Code
+                  </ProjectLink>
+                </ProjectLinks>
+              </ProjectContent>
+            </ProjectCard>
+          ))}
+        </ProjectsSection>
+        
+        <SkillsSection>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <SectionTitle variants={itemVariants}>
+              Game Development Skills
+            </SectionTitle>
+            <SectionSubtitle variants={itemVariants}>
+              Technical capabilities I've developed through years of creating games and interactive experiences
+            </SectionSubtitle>
+          </motion.div>
+          
+          <SkillsGrid>
+            {gameSkills.map((skill, index) => (
+              <SkillCard
+                key={index}
+                variants={cardVariants}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                whileHover={{ 
+                  y: -15, 
+                  boxShadow: "0 15px 30px rgba(108, 99, 255, 0.2)",
+                  transition: { duration: 0.3 }
+                }}
+              >
+                <h4>
+                  <motion.span
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 5, 0, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 3,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      delay: index * 0.2
+                    }}
+                  >
+                    {skill.icon}
+                  </motion.span>
+                  {skill.name}
+                </h4>
+                <p>{skill.description}</p>
+                <ProgressBar progress={0}>
+                  <motion.div
+                    initial={{ width: "0%" }}
+                    whileInView={{ width: `${skill.progress}%` }}
+                    transition={{ duration: 1, delay: 0.5 + (index * 0.1) }}
+                    viewport={{ once: true }}
+                  ></motion.div>
+                </ProgressBar>
+              </SkillCard>
+            ))}
+          </SkillsGrid>
+        </SkillsSection>
+        
+        <DemoSection>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <SectionTitle variants={itemVariants}>
+              Playable Demos
+            </SectionTitle>
+            <SectionSubtitle variants={itemVariants}>
+              Try out some of my smaller game projects directly in your browser
+            </SectionSubtitle>
+          </motion.div>
+          
+          <DemosGrid>
+            {gameDemos.map((demo, index) => (
+              <DemoCard
+                key={index}
+                variants={cardVariants}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                whileHover={{ 
+                  y: -15, 
+                  scale: 1.03,
+                  transition: { duration: 0.3 }
+                }}
+              >
+                <DemoImage>
+                  <img src={demo.image} alt={demo.title} />
+                </DemoImage>
+                <DemoContent>
+                  <h4>{demo.title}</h4>
+                  <p>{demo.description}</p>
+                  <PlayButton 
+                    href={demo.playLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    as={motion.a}
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 10px 20px rgba(108, 99, 255, 0.3)"
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <motion.div
+                      animate={{ 
+                        x: [0, 5, 0],
+                      }}
+                      transition={{ 
+                        duration: 1.5,
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                    </motion.div>
+                    Play Now
+                  </PlayButton>
+                </DemoContent>
+              </DemoCard>
+            ))}
+          </DemosGrid>
+        </DemoSection>
+        
+        <InspirationSection>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <SectionTitle variants={itemVariants}>
+              Journey & Inspiration
+            </SectionTitle>
+            <SectionSubtitle variants={itemVariants}>
+              The path that led me to game development and what continues to inspire my work
+            </SectionSubtitle>
+          </motion.div>
+          
+          <InspirationContent>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7 }}
+              viewport={{ once: true, amount: 0.3 }}
+            >
+              <InspirationText>
+                <h3>My Development Journey</h3>
+                <p>
+                  My passion for game development began with modding existing games, which taught me the fundamentals of game mechanics and level design. Since then, I've continuously expanded my skills through formal education, online courses, and practical experience working on both solo and team projects.
+                </p>
+                <p>
+                  Some key influences that continue to inspire my work include:
+                </p>
+                <ul>
+                  <li>The emergent gameplay of immersive sims like Deus Ex and Dishonored</li>
+                  <li>The elegant design philosophy of Nintendo's first-party titles</li>
+                  <li>The storytelling innovations of indie games like Journey and Undertale</li>
+                  <li>The technical achievements of studios like Naughty Dog and id Software</li>
+                </ul>
+                <p>
+                  I believe games are the most powerful medium for interactive storytelling and creating meaningful experiences that can educate, inspire, and bring people together.
+                </p>
+              </InspirationText>
+            </motion.div>
+            
+            <motion.div
+              animate={floatAnimation}
+            >
+              <InspirationImage
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                viewport={{ once: true, amount: 0.3 }}
+                whileHover={{ scale: 1.05, rotate: 2 }}
+              >
+                <img src="./images/game-inspiration.jpg" alt="Game Development Inspiration" />
+              </InspirationImage>
+            </motion.div>
+          </InspirationContent>
+        </InspirationSection>
+      </GameDevContainer>
+      
+      <Footer />
+    </motion.div>
   );
 };
 

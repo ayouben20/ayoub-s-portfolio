@@ -27,16 +27,26 @@ const Nav = styled(motion.nav)`
 
 const Logo = styled(Link)`
   font-size: 1.8rem;
-  font-weight: 700;
-  color: ${props => props.theme.logoColor || props.theme.primary || '#4A90E2'};
-  letter-spacing: -0.5px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
+  font-weight: 600;
+  color: ${props => props.theme.text};
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+  transition: color 0.3s ease, transform 0.3s ease;
+  padding: 0.2rem 0;
+
+  span {
+    color: ${props => props.theme.primary};
+    font-weight: 700;
+    margin-right: 0.25em;
+  }
   
   &:hover {
-    transform: scale(1.05);
-    color: ${props => props.theme.primaryHover || '#2a70c2'};
+    transform: scale(1.03);
+    color: ${props => props.theme.text};
+    span {
+      color: ${props => props.theme.primaryHover};
+    }
   }
 `;
 
@@ -230,7 +240,9 @@ const Navbar = ({ themeToggler, theme }) => {
           boxShadow: isGameDevPage ? 'none' : ''
         }}
       >
-        <Logo to="/">Ayoub Benammour</Logo>
+        <Logo to="/">
+          <span>Ayoub</span>Benammour
+        </Logo>
         
         <NavLinks>
           <NavLink to="/" active={location.pathname === '/' ? 1 : 0}>

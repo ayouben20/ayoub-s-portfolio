@@ -1,6 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
+import { useScrollToTop } from '../utils/scrollUtils';
+import Footer from '../components/Footer';
 
 const ProjectsContainer = styled.div`
   padding: 8rem 2rem 2rem;
@@ -93,7 +95,32 @@ const Link = styled.a`
   }
 `;
 
+// Add definitions for page animations
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20
+  },
+  in: {
+    opacity: 1,
+    y: 0
+  },
+  exit: {
+    opacity: 0,
+    y: -20
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
+
 const Projects = () => {
+  // Use the scroll to top hook
+  useScrollToTop();
+
   const projects = [
     {
       title: 'Web Development Project',
@@ -119,46 +146,55 @@ const Projects = () => {
   ];
 
   return (
-    <ProjectsContainer>
-      <SectionTitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Featured Projects
-      </SectionTitle>
-      <ProjectsGrid>
-        {projects.map((project, index) => (
-          <ProjectCard
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-          >
-            <ProjectImage>
-              Project Preview
-            </ProjectImage>
-            <ProjectContent>
-              <ProjectTitle>{project.title}</ProjectTitle>
-              <ProjectDescription>{project.description}</ProjectDescription>
-              <TechStack>
-                {project.tech.map((tech, techIndex) => (
-                  <TechTag key={techIndex}>{tech}</TechTag>
-                ))}
-              </TechStack>
-              <ProjectLinks>
-                <Link href={project.github} target="_blank" rel="noopener noreferrer">
-                  GitHub
-                </Link>
-                <Link href={project.live} target="_blank" rel="noopener noreferrer">
-                  Live Demo
-                </Link>
-              </ProjectLinks>
-            </ProjectContent>
-          </ProjectCard>
-        ))}
-      </ProjectsGrid>
-    </ProjectsContainer>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      <ProjectsContainer>
+        <SectionTitle
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Featured Projects
+        </SectionTitle>
+        <ProjectsGrid>
+          {projects.map((project, index) => (
+            <ProjectCard
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <ProjectImage>
+                Project Preview
+              </ProjectImage>
+              <ProjectContent>
+                <ProjectTitle>{project.title}</ProjectTitle>
+                <ProjectDescription>{project.description}</ProjectDescription>
+                <TechStack>
+                  {project.tech.map((tech, techIndex) => (
+                    <TechTag key={techIndex}>{tech}</TechTag>
+                  ))}
+                </TechStack>
+                <ProjectLinks>
+                  <Link href={project.github} target="_blank" rel="noopener noreferrer">
+                    GitHub
+                  </Link>
+                  <Link href={project.live} target="_blank" rel="noopener noreferrer">
+                    Live Demo
+                  </Link>
+                </ProjectLinks>
+              </ProjectContent>
+            </ProjectCard>
+          ))}
+        </ProjectsGrid>
+      </ProjectsContainer>
+      <Footer />
+    </motion.div>
   );
 };
 

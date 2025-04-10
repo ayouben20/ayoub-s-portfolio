@@ -1,11 +1,63 @@
-import React from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'framer-motion';
+import { useScrollToTop } from '../utils/scrollUtils';
+import Footer from '../components/Footer';
+
+// Keyframes for blob animation
+const moveBlob1 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(15px, 5px) scale(1.02); }
+`;
+
+const moveBlob2 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-15px, 25px) scale(0.98); }
+  50% { transform: translate(10px, -10px) scale(1.03); }
+  75% { transform: translate(-5px, -15px) scale(1); }
+`;
+
+// Styled component for background blobs
+const AnimatedBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(108, 99, 255, 0.1));
+  filter: blur(50px); // Soft blur effect
+  z-index: 0; // Behind content
+  pointer-events: none; // Make it non-interactive
+
+  &.blob1 {
+    width: 350px;
+    height: 350px;
+    top: 10%;
+    left: 5%;
+    animation: ${moveBlob1} 15s infinite alternate ease-in-out;
+  }
+
+  &.blob2 {
+    width: 280px;
+    height: 280px;
+    bottom: 15%;
+    right: 10%;
+    animation: ${moveBlob2} 18s infinite alternate ease-in-out;
+    animation-delay: -5s; // Offset animation start
+  }
+  
+  // Hide blobs on smaller screens where they might be too distracting
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 const AboutContainer = styled.div`
   padding: 8rem 2rem 4rem;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
 `;
 
 const SectionTitle = styled(motion.h2)`
@@ -304,7 +356,66 @@ const SkillProgress = styled(motion.div)`
   border-radius: 3px;
 `;
 
+// Page transition variants
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20
+  },
+  in: {
+    opacity: 1,
+    y: 0
+  },
+  exit: {
+    opacity: 0,
+    y: -20
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15, // Delay between child animations
+      delayChildren: 0.3, // Initial delay before starting
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.1, // Stagger animation based on index
+      duration: 0.6,
+      ease: "easeInOut"
+    }
+  })
+};
+
 const About = () => {
+  // Use the scroll to top hook
+  useScrollToTop();
+
   const skills = [
     { name: "JavaScript", level: 90, icon: "💻" },
     { name: "React", level: 85, icon: "⚛️" },
@@ -318,208 +429,229 @@ const About = () => {
     { name: "UI/UX Design", level: 85, icon: "✏️" }
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      // Send event to parent to show navbar - ALWAYS SHOW
+      const event = new CustomEvent('navbar-visibility', { 
+        detail: { visible: true }
+      });
+      window.dispatchEvent(event);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
-    <AboutContainer>
-      <SectionTitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        About Me
-      </SectionTitle>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      {/* Animated Background Blobs */}
+      <AnimatedBlob className="blob1" />
+      <AnimatedBlob className="blob2" />
       
-      <SectionSubtitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        Get to know more about my background, experience, and what drives me as a developer.
-      </SectionSubtitle>
-      
-      <AboutContent>
-        <AboutText>
-          <Paragraph
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            I'm Ayoub Benammour, a passionate developer with a focus on creating exceptional digital experiences through both web and game development. With several years of experience in the field, I've had the opportunity to work on a diverse range of projects, from responsive websites to immersive games.
-          </Paragraph>
-          <Paragraph
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            My journey into development began with a curiosity about how digital products are built and a desire to create meaningful user experiences. This curiosity evolved into a deep passion for coding, design, and problem-solving. I'm constantly exploring new technologies and methodologies to enhance my skill set and deliver better results.
-          </Paragraph>
-          <Paragraph
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            I believe in a user-centered approach to development, where understanding the end user's needs and experiences drives the creation of intuitive, accessible, and engaging solutions. This philosophy guides my work across both web and game development projects.
-          </Paragraph>
-          <Paragraph
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            When I'm not coding, I enjoy exploring new game mechanics, reading about UX design, and contributing to open source projects. I'm always open to new challenges and collaborations, so feel free to reach out if you have a project in mind.
-          </Paragraph>
-        </AboutText>
+      <AboutContainer>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <SectionTitle variants={itemVariants}>
+            About Me
+          </SectionTitle>
+          
+          <SectionSubtitle variants={itemVariants}>
+            Get to know more about my background, experience, and what drives me as a developer.
+          </SectionSubtitle>
+        </motion.div>
         
-        <ProfileColumnContainer>
-          <ProfileFloatingEffect
-            animate={{ 
-              y: [0, -15, 0],
-            }}
-            transition={{ 
-              duration: 6, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
+        <AboutContent>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
           >
-            <ProfileDecorativeCircle 
+            <AboutText>
+              <Paragraph variants={itemVariants}>
+                I'm Ayoub Benammour, a passionate developer with a focus on creating exceptional digital experiences through both web and game development. With several years of experience in the field, I've had the opportunity to work on a diverse range of projects, from responsive websites to immersive games.
+              </Paragraph>
+              <Paragraph variants={itemVariants}>
+                My journey into development began with a curiosity about how digital products are built and a desire to create meaningful user experiences. This curiosity evolved into a deep passion for coding, design, and problem-solving. I'm constantly exploring new technologies and methodologies to enhance my skill set and deliver better results.
+              </Paragraph>
+              <Paragraph variants={itemVariants}>
+                I believe in a user-centered approach to development, where understanding the end user's needs and experiences drives the creation of intuitive, accessible, and engaging solutions. This philosophy guides my work across both web and game development projects.
+              </Paragraph>
+              <Paragraph variants={itemVariants}>
+                When I'm not coding, I enjoy exploring new game mechanics, reading about UX design, and contributing to open source projects. I'm always open to new challenges and collaborations, so feel free to reach out if you have a project in mind.
+              </Paragraph>
+            </AboutText>
+          </motion.div>
+          
+          <ProfileColumnContainer>
+            <ProfileFloatingEffect
               animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.5, 0.8, 0.5]
+                y: [0, -15, 0],
               }}
               transition={{ 
-                duration: 3, 
-                repeat: Infinity,
-                repeatType: "reverse" 
+                duration: 6, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
               }}
-            />
-            <ProfileDecorativeCircle 
-              animate={{ 
-                scale: [1, 1.3, 1],
-                opacity: [0.4, 0.7, 0.4]
-              }}
-              transition={{ 
-                duration: 4, 
-                repeat: Infinity,
-                repeatType: "reverse",
-                delay: 1
-              }}
-            />
-            <ProfileDecorativeCircle 
-              animate={{ 
-                scale: [1, 1.4, 1],
-                opacity: [0.3, 0.6, 0.3]
-              }}
-              transition={{ 
-                duration: 5, 
-                repeat: Infinity,
-                repeatType: "reverse",
-                delay: 0.5
-              }}
-            />
-            
-            <ProfilePictureWrapper
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
             >
-              <ProfileAnimationCircle
+              <ProfileDecorativeCircle 
                 animate={{ 
-                  rotate: 360
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 0.8, 0.5]
                 }}
                 transition={{ 
-                  duration: 20, 
-                  repeat: Infinity, 
-                  ease: "linear" 
-                }}
-              />
-              <ProfilePicture 
-                animate={{ 
-                  scale: [1, 1.03, 1]
-                }}
-                transition={{ 
-                  duration: 8, 
+                  duration: 3, 
                   repeat: Infinity,
                   repeatType: "reverse" 
                 }}
               />
-              <ProfilePictureHighlight 
+              <ProfileDecorativeCircle 
                 animate={{ 
-                  opacity: [0.5, 0.7, 0.5], 
+                  scale: [1, 1.3, 1],
+                  opacity: [0.4, 0.7, 0.4]
                 }}
                 transition={{ 
-                  duration: 2, 
-                  repeat: Infinity, 
-                  repeatType: "reverse" 
+                  duration: 4, 
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  delay: 1
                 }}
               />
-            </ProfilePictureWrapper>
-          </ProfileFloatingEffect>
-        </ProfileColumnContainer>
-      </AboutContent>
-      
-      <StatsContainer
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-      >
-        <StatItem
-          whileHover={{ y: -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          <StatNumber>5+</StatNumber>
-          <StatTitle>Years Experience</StatTitle>
-        </StatItem>
-        <StatItem
-          whileHover={{ y: -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          <StatNumber>50+</StatNumber>
-          <StatTitle>Projects Completed</StatTitle>
-        </StatItem>
-        <StatItem
-          whileHover={{ y: -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          <StatNumber>20+</StatNumber>
-          <StatTitle>Happy Clients</StatTitle>
-        </StatItem>
-        <StatItem
-          whileHover={{ y: -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          <StatNumber>10+</StatNumber>
-          <StatTitle>Games Created</StatTitle>
-        </StatItem>
-      </StatsContainer>
-      
-      <SkillsContainer
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.7 }}
-      >
-        <SkillsTitle>My Skills</SkillsTitle>
-        <SkillsGrid>
-          {skills.map((skill, index) => (
-            <Skill
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 * index }}
-              whileHover={{ y: -5 }}
-            >
-              <SkillIcon>{skill.icon}</SkillIcon>
-              <SkillName>{skill.name}</SkillName>
-              <SkillLevel>
-                <SkillProgress
-                  initial={{ width: 0 }}
-                  animate={{ width: `${skill.level}%` }}
-                  transition={{ duration: 1, delay: 0.2 * index }}
+              <ProfileDecorativeCircle 
+                animate={{ 
+                  scale: [1, 1.4, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ 
+                  duration: 5, 
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  delay: 0.5
+                }}
+              />
+              
+              <ProfilePictureWrapper
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <ProfileAnimationCircle
+                  animate={{ 
+                    rotate: 360
+                  }}
+                  transition={{ 
+                    duration: 20, 
+                    repeat: Infinity, 
+                    ease: "linear" 
+                  }}
                 />
-              </SkillLevel>
-            </Skill>
-          ))}
-        </SkillsGrid>
-      </SkillsContainer>
-    </AboutContainer>
+                <ProfilePicture 
+                  animate={{ 
+                    scale: [1, 1.03, 1]
+                  }}
+                  transition={{ 
+                    duration: 8, 
+                    repeat: Infinity,
+                    repeatType: "reverse" 
+                  }}
+                />
+                <ProfilePictureHighlight 
+                  animate={{ 
+                    opacity: [0.5, 0.7, 0.5], 
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity, 
+                    repeatType: "reverse" 
+                  }}
+                />
+              </ProfilePictureWrapper>
+            </ProfileFloatingEffect>
+          </ProfileColumnContainer>
+        </AboutContent>
+        
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ staggerChildren: 0.1 }}
+        >
+          <StatsContainer>
+            {[
+              { number: "5+", title: "Years Experience" },
+              { number: "50+", title: "Projects Completed" },
+              { number: "20+", title: "Happy Clients" },
+              { number: "10+", title: "Games Created" }
+            ].map((stat, index) => (
+              <StatItem
+                key={index}
+                variants={cardVariants}
+                custom={index}
+                whileHover={{ 
+                  y: -10, 
+                  rotate: [-1, 1, -1],
+                  transition: {
+                    rotate: { repeat: Infinity, duration: 0.5 }
+                  }
+                }}
+              >
+                <StatNumber>{stat.number}</StatNumber>
+                <StatTitle>{stat.title}</StatTitle>
+              </StatItem>
+            ))}
+          </StatsContainer>
+        </motion.div>
+        
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
+        >
+          <SkillsContainer>
+            <SkillsTitle>My Skills</SkillsTitle>
+            <SkillsGrid>
+              {skills.map((skill, index) => (
+                <Skill
+                  key={index}
+                  variants={cardVariants}
+                  custom={index}
+                  whileHover={{ 
+                    y: -10, 
+                    scale: 1.05,
+                    boxShadow: "0 15px 30px rgba(0, 0, 0, 0.15)"
+                  }}
+                >
+                  <SkillIcon>{skill.icon}</SkillIcon>
+                  <SkillName>{skill.name}</SkillName>
+                  <SkillLevel>
+                    <SkillProgress
+                      initial={{ width: 0 }}
+                      animate={{ width: `${skill.level}%` }}
+                      transition={{ duration: 1, delay: 0.2 * index }}
+                    />
+                  </SkillLevel>
+                </Skill>
+              ))}
+            </SkillsGrid>
+          </SkillsContainer>
+        </motion.div>
+      </AboutContainer>
+      
+      <Footer />
+    </motion.div>
   );
 };
 

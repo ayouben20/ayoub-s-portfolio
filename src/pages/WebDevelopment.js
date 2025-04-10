@@ -1,11 +1,62 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
+import { useScrollToTop } from '../utils/scrollUtils';
+import Footer from '../components/Footer';
+
+// Keyframes for blob animation
+const moveBlob1 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(15px, 5px) scale(1.02); }
+`;
+
+const moveBlob2 = keyframes`
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-15px, 25px) scale(0.98); }
+  50% { transform: translate(10px, -10px) scale(1.03); }
+  75% { transform: translate(-5px, -15px) scale(1); }
+`;
+
+// Styled component for background blobs
+const AnimatedBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(108, 99, 255, 0.1));
+  filter: blur(50px); // Soft blur effect
+  z-index: 0; // Behind content
+  pointer-events: none; // Make it non-interactive
+
+  &.blob1 {
+    width: 350px;
+    height: 350px;
+    top: 10%;
+    left: 5%;
+    animation: ${moveBlob1} 15s infinite alternate ease-in-out;
+  }
+
+  &.blob2 {
+    width: 280px;
+    height: 280px;
+    bottom: 15%;
+    right: 10%;
+    animation: ${moveBlob2} 18s infinite alternate ease-in-out;
+    animation-delay: -5s; // Offset animation start
+  }
+  
+  // Hide blobs on smaller screens where they might be too distracting
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
 const WebDevContainer = styled.div`
   padding: 8rem 2rem 4rem;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
 `;
 
 const SectionTitle = styled(motion.h2)`
@@ -316,309 +367,302 @@ const StepDescription = styled.p`
   line-height: 1.6;
 `;
 
-const WebDevelopment = () => {
-  const [category, setCategory] = useState('all');
-  const [visibleProjects, setVisibleProjects] = useState(6);
-  
-  const skills = [
-    {
-      name: "Frontend Development",
-      description: "Creating responsive and interactive user interfaces using modern frameworks and libraries like React, Vue, and Angular.",
-      icon: "💻"
-    },
-    {
-      name: "Backend Development",
-      description: "Building robust and scalable server-side applications with Node.js, Express, and database integration.",
-      icon: "🔧"
-    },
-    {
-      name: "Responsive Design",
-      description: "Ensuring websites look and function beautifully across all devices and screen sizes.",
-      icon: "📱"
-    },
-    {
-      name: "Performance Optimization",
-      description: "Optimizing loading speeds and overall performance for the best user experience.",
-      icon: "⚡"
-    },
-    {
-      name: "API Development",
-      description: "Creating RESTful and GraphQL APIs to connect frontend and backend services efficiently.",
-      icon: "🔄"
-    },
-    {
-      name: "Database Design",
-      description: "Designing and implementing efficient database schemas with SQL and NoSQL solutions.",
-      icon: "💾"
-    },
-    {
-      name: "UI/UX Design",
-      description: "Designing intuitive and attractive user interfaces that enhance user experience.",
-      icon: "🎨"
-    },
-    {
-      name: "Testing & Debugging",
-      description: "Implementing testing strategies and debugging techniques to ensure high-quality code.",
-      icon: "🔍"
+// Page transition variants
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20
+  },
+  in: {
+    opacity: 1,
+    y: 0
+  },
+  exit: {
+    opacity: 0,
+    y: -20
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.3,
     }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.6,
+      ease: "easeInOut"
+    }
+  })
+};
+
+// Floating animation for icons
+const floatAnimation = {
+  y: [0, -8, 0],
+  transition: {
+    duration: 4,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+};
+
+
+const WebDevelopment = () => {
+  // Use the scroll to top hook
+  useScrollToTop();
+
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [displayedProjects, setDisplayedProjects] = useState(6);
+
+  const webSkills = [
+    { name: "Frontend Development", icon: "💻", description: "Building responsive and interactive user interfaces using React, Next.js, and modern CSS." },
+    { name: "Backend Development", icon: "🔧", description: "Creating robust server-side applications and APIs with Node.js, Express, and databases like MongoDB and PostgreSQL." },
+    { name: "Full-Stack Expertise", icon: "🌐", description: "Seamless integration of frontend and backend technologies for complete web solutions." },
+    { name: "API Integration", icon: "🔗", description: "Connecting web applications with third-party services and APIs for extended functionality." },
+    { name: "Database Management", icon: "💾", description: "Designing and managing efficient databases using SQL and NoSQL technologies." },
+    { name: "Cloud Deployment", icon: "☁️", description: "Deploying and managing web applications on platforms like Vercel, Netlify, and AWS." }
   ];
 
-  const allProjects = [
-    {
-      title: "E-Commerce Platform",
-      description: "A fully responsive e-commerce platform with user authentication, product filtering, and payment integration.",
-      tech: ["React", "Node.js", "MongoDB", "Stripe"],
-      image: "/images/project1.jpg",
-      category: "fullstack"
-    },
-    {
-      title: "Task Management App",
-      description: "A collaborative task management application with real-time updates, drag-and-drop functionality, and team collaboration features.",
-      tech: ["React", "Firebase", "Redux", "Material UI"],
-      image: "/images/project2.jpg",
-      category: "frontend"
-    },
-    {
-      title: "Portfolio Website",
-      description: "A custom-designed portfolio website showcasing projects and skills with smooth animations and responsive design.",
-      tech: ["React", "Styled Components", "Framer Motion"],
-      image: "/images/project3.jpg",
-      category: "frontend"
-    },
-    {
-      title: "Restaurant Booking System",
-      description: "An online reservation system for restaurants with real-time availability checking and email notifications.",
-      tech: ["Node.js", "Express", "MongoDB", "SendGrid"],
-      image: "/images/project4.jpg",
-      category: "backend"
-    },
-    {
-      title: "Real Estate Listing Platform",
-      description: "A platform for listing and browsing real estate properties with advanced filtering options and map integration.",
-      tech: ["React", "Node.js", "PostgreSQL", "Google Maps API"],
-      image: "/images/project5.jpg",
-      category: "fullstack"
-    },
-    {
-      title: "Weather Dashboard",
-      description: "A weather application showing current conditions and forecasts with data visualization and location detection.",
-      tech: ["JavaScript", "Chart.js", "Weather API", "Geolocation API"],
-      image: "/images/project6.jpg",
-      category: "frontend"
-    },
-    {
-      title: "Social Media Dashboard",
-      description: "An analytics dashboard for tracking social media engagement across multiple platforms.",
-      tech: ["React", "D3.js", "Social Media APIs", "Redux"],
-      image: "/images/project7.jpg",
-      category: "frontend"
-    },
-    {
-      title: "Fitness Tracking App",
-      description: "A mobile-responsive application for tracking workouts, nutrition, and fitness progress over time.",
-      tech: ["React Native", "Firebase", "Chart.js", "Expo"],
-      image: "/images/project8.jpg",
-      category: "mobile"
-    },
-    {
-      title: "Content Management System",
-      description: "A custom CMS with role-based access control, content scheduling, and media management.",
-      tech: ["Node.js", "Express", "MongoDB", "React"],
-      image: "/images/project9.jpg",
-      category: "fullstack"
-    },
-    {
-      title: "API Gateway Service",
-      description: "A microservice gateway handling authentication, rate limiting, and request routing for a larger application.",
-      tech: ["Node.js", "Express", "Redis", "JWT"],
-      image: "/images/project10.jpg",
-      category: "backend"
-    }
+  const webProjects = [
+    { title: "E-Commerce Platform", description: "Full-featured online store with user auth, product filtering, and Stripe integration.", category: "E-commerce", image: "/images/project1.jpg", tech: ["React", "Node.js", "MongoDB", "Stripe"], liveLink: "#", codeLink: "#" },
+    { title: "Portfolio Website", description: "Personal portfolio showcasing projects with smooth animations and theme switching.", category: "Portfolio", image: "/images/project3.jpg", tech: ["React", "Framer Motion", "Styled Components"], liveLink: "#", codeLink: "#" },
+    { title: "Social Media App", description: "A platform for users to share updates, follow others, and engage with posts.", category: "Social", image: "/images/web-social.jpg", tech: ["React", "Firebase", "Redux"], liveLink: "#", codeLink: "#" },
+    { title: "Task Management Tool", description: "A collaborative tool for teams to manage tasks, projects, and deadlines effectively.", category: "Productivity", image: "/images/web-task.jpg", tech: ["Next.js", "Node.js", "PostgreSQL", "WebSockets"], liveLink: "#", codeLink: "#" },
+    { title: "Online Learning Platform", description: "An educational platform offering video courses, quizzes, and progress tracking.", category: "Education", image: "/images/web-lms.jpg", tech: ["React", "Express", "MongoDB", "Cloudinary"], liveLink: "#", codeLink: "#" },
+    { title: "Recipe Sharing Website", description: "A community-driven site for users to share, discover, and rate recipes.", category: "Community", image: "/images/web-recipe.jpg", tech: ["React", "Node.js", "MySQL"], liveLink: "#", codeLink: "#" },
+    { title: "Blog Platform", description: "A customizable blogging platform with rich text editing and user management.", category: "CMS", image: "/images/web-blog.jpg", tech: ["Next.js", "Sanity.io", "Tailwind CSS"], liveLink: "#", codeLink: "#" },
+    { title: "Real Estate Listing Site", description: "A platform for browsing property listings with advanced search and map integration.", category: "Marketplace", image: "/images/web-realestate.jpg", tech: ["React", "Node.js", "MongoDB", "Mapbox API"], liveLink: "#", codeLink: "#" }
   ];
-  
-  const filteredProjects = category === 'all' 
-    ? allProjects 
-    : allProjects.filter(project => project.category === category);
-  
-  const displayedProjects = filteredProjects.slice(0, visibleProjects);
-  
-  const loadMore = () => {
-    setVisibleProjects(prev => Math.min(prev + 3, filteredProjects.length));
+
+  const categories = ['All', 'E-commerce', 'Portfolio', 'Social', 'Productivity', 'Education', 'Community', 'CMS', 'Marketplace'];
+
+  const filteredProjects = activeCategory === 'All' 
+    ? webProjects 
+    : webProjects.filter(p => p.category === activeCategory);
+
+  const loadMoreProjects = () => {
+    setDisplayedProjects(prev => prev + 6);
   };
-  
-  const processSteps = [
-    {
-      number: 1,
-      title: "Requirement Analysis",
-      description: "Understanding your specific needs and goals to define clear requirements for the web development project."
-    },
-    {
-      number: 2,
-      title: "Planning & Architecture",
-      description: "Creating a solid plan and technical architecture to ensure the project is built on a strong foundation."
-    },
-    {
-      number: 3,
-      title: "Design & Prototyping",
-      description: "Designing intuitive user interfaces and creating interactive prototypes for feedback before implementation."
-    },
-    {
-      number: 4,
-      title: "Development",
-      description: "Coding the application with modern web technologies, following best practices and industry standards."
-    },
-    {
-      number: 5,
-      title: "Testing & Refinement",
-      description: "Thorough testing across devices and browsers to ensure quality, followed by refinements for optimal performance."
-    },
-    {
-      number: 6,
-      title: "Deployment & Support",
-      description: "Launching the application and providing ongoing support and maintenance to ensure continued success."
-    }
-  ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Send event to parent to show navbar - ALWAYS SHOW
+      const event = new CustomEvent('navbar-visibility', { 
+        detail: { visible: true }
+      });
+      window.dispatchEvent(event);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
-    <WebDevContainer>
-      <SectionTitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Web Development
-      </SectionTitle>
-      <SectionSubtitle
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        Creating responsive, user-friendly websites and web applications with modern technologies and best practices.
-      </SectionSubtitle>
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="exit"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      {/* Animated Background Blobs */}
+      <AnimatedBlob className="blob1" />
+      <AnimatedBlob className="blob2" />
       
-      <SkillsSection>
-        <SkillsGrid>
-          {skills.map((skill, index) => (
-            <SkillCard
-              key={index}
+      <WebDevContainer>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <SectionTitle variants={itemVariants}>
+            Web Development
+          </SectionTitle>
+          <SectionSubtitle variants={itemVariants}>
+            Building dynamic, responsive, and high-performance web solutions for diverse needs
+          </SectionSubtitle>
+        </motion.div>
+        
+        <SkillsSection>
+          <motion.div
+            initial={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <SkillsGrid>
+              {webSkills.map((skill, index) => (
+                <SkillCard
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: index * 0.1 
+                  }}
+                  whileHover={{ 
+                    y: -15, 
+                    boxShadow: "0 15px 30px rgba(74, 144, 226, 0.2)",
+                    transition: { duration: 0.3 }
+                  }}
+                >
+                  <SkillIcon>
+                    <motion.div animate={floatAnimation}>
+                      {skill.icon}
+                    </motion.div>
+                  </SkillIcon>
+                  <SkillName>{skill.name}</SkillName>
+                  <SkillDescription>{skill.description}</SkillDescription>
+                </SkillCard>
+              ))}
+            </SkillsGrid>
+          </motion.div>
+        </SkillsSection>
+        
+        <ProjectsSection>
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+          >
+            <SectionTitle 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
-              whileHover={{ y: -10 }}
+              transition={{ duration: 0.5 }}
             >
-              <SkillIcon>{skill.icon}</SkillIcon>
-              <SkillName>{skill.name}</SkillName>
-              <SkillDescription>{skill.description}</SkillDescription>
-            </SkillCard>
-          ))}
-        </SkillsGrid>
-      </SkillsSection>
-      
-      <ProjectsSection>
-        <ProcessTitle>Web Projects</ProcessTitle>
-        
-        <CategoryFilter>
-          <FilterButton 
-            active={category === 'all'} 
-            onClick={() => setCategory('all')}
-          >
-            All Projects
-          </FilterButton>
-          <FilterButton 
-            active={category === 'frontend'} 
-            onClick={() => setCategory('frontend')}
-          >
-            Frontend
-          </FilterButton>
-          <FilterButton 
-            active={category === 'backend'} 
-            onClick={() => setCategory('backend')}
-          >
-            Backend
-          </FilterButton>
-          <FilterButton 
-            active={category === 'fullstack'} 
-            onClick={() => setCategory('fullstack')}
-          >
-            Full Stack
-          </FilterButton>
-          <FilterButton 
-            active={category === 'mobile'} 
-            onClick={() => setCategory('mobile')}
-          >
-            Mobile
-          </FilterButton>
-        </CategoryFilter>
-        
-        <ProjectsGrid>
-          {displayedProjects.map((project, index) => (
-            <ProjectCard
-              key={index}
+              Featured Web Projects
+            </SectionTitle>
+            <SectionSubtitle
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <ProjectImage style={{ backgroundImage: `url(${project.image})` }} />
-              <ProjectContent>
-                <ProjectTitle>{project.title}</ProjectTitle>
-                <ProjectDescription>{project.description}</ProjectDescription>
-                <TechStack>
-                  {project.tech.map((tech, techIndex) => (
-                    <TechTag key={techIndex}>{tech}</TechTag>
-                  ))}
-                </TechStack>
-                <ProjectLinks>
-                  <ProjectLink href="#">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
-                      <path d="M15 3h6v6"></path>
-                      <path d="M10 14L21 3"></path>
-                    </svg>
-                    View Project
-                  </ProjectLink>
-                  <ProjectLink href="#">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"></path>
-                    </svg>
-                    Code
-                  </ProjectLink>
-                </ProjectLinks>
-              </ProjectContent>
-            </ProjectCard>
-          ))}
-        </ProjectsGrid>
-        
-        {visibleProjects < filteredProjects.length && (
-          <LoadMoreButton 
-            onClick={loadMore}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+              A selection of web applications and sites I've developed
+            </SectionSubtitle>
+          </motion.div>
+          
+          <CategoryFilter>
+            {categories.map(category => (
+              <FilterButton
+                key={category}
+                active={activeCategory === category}
+                onClick={() => setActiveCategory(category)}
+                as={motion.button}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {category}
+              </FilterButton>
+            ))}
+          </CategoryFilter>
+          
+          <motion.div 
+            layout
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
           >
-            Load More Projects
-          </LoadMoreButton>
-        )}
-      </ProjectsSection>
-      
-      <ProcessSection>
-        <ProcessTitle>My Web Development Process</ProcessTitle>
-        <ProcessSteps>
-          {processSteps.map((step, index) => (
-            <ProcessStep
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
-              whileHover={{ y: -10 }}
+            <ProjectsGrid>
+              {filteredProjects.slice(0, displayedProjects).map((project, index) => (
+                <ProjectCard
+                  key={project.title + activeCategory} // Add activeCategory to key for re-animation
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ 
+                    y: -10,
+                    scale: 1.03,
+                    boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)",
+                    transition: { duration: 0.3 }
+                  }}
+                >
+                  <ProjectImage style={{ backgroundImage: `url(${project.image})` }} />
+                  <ProjectContent>
+                    <ProjectTitle>{project.title}</ProjectTitle>
+                    <ProjectDescription>{project.description}</ProjectDescription>
+                    <TechStack>
+                      {project.tech.map((t, i) => (
+                        <TechTag key={i}>{t}</TechTag>
+                      ))}
+                    </TechStack>
+                    <ProjectLinks>
+                      <ProjectLink 
+                        href={project.liveLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        as={motion.a}
+                        whileHover={{ x: 5 }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        Live Demo
+                      </ProjectLink>
+                      <ProjectLink 
+                        href={project.codeLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        as={motion.a}
+                        whileHover={{ x: 5 }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                        View Code
+                      </ProjectLink>
+                    </ProjectLinks>
+                  </ProjectContent>
+                </ProjectCard>
+              ))}
+            </ProjectsGrid>
+          </motion.div>
+          
+          {displayedProjects < filteredProjects.length && (
+            <LoadMoreButton
+              onClick={loadMoreProjects}
+              whileHover={{ scale: 1.05, backgroundColor: 'rgba(74, 144, 226, 0.1)' }}
+              whileTap={{ scale: 0.95 }}
             >
-              <StepNumber>{step.number}</StepNumber>
-              <StepTitle>{step.title}</StepTitle>
-              <StepDescription>{step.description}</StepDescription>
-            </ProcessStep>
-          ))}
-        </ProcessSteps>
-      </ProcessSection>
-    </WebDevContainer>
+              Load More Projects
+            </LoadMoreButton>
+          )}
+        </ProjectsSection>
+      </WebDevContainer>
+      
+      <Footer />
+    </motion.div>
   );
 };
 
-export default WebDevelopment; 
+export default WebDevelopment;

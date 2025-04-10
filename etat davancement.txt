@@ -1,0 +1,112 @@
+﻿# État d'avancement du projet Portfolio
+
+
+## Résumé du projet
+Ce document détaille l'état d'avancement du développement du portfolio web et jeu pour Ayoub Benammour.
+
+
+## Développements réalisés
+
+### Structure du projet
+
+Le projet est structuré avec les principaux composants suivants :
+- **Navbar**: Navigation responsive avec gestion de menu mobile
+- **GlobalStyle**: Styles globaux et gestion du thème
+- **ScrollToTopButton**: Bouton réutilisable pour remonter en haut de page
+
+
+### Pages implémentées
+
+Les pages suivantes ont été créées :
+- **Home**: Page d'accueil avec présentation générale
+- **About**: Page de présentation personnelle
+- **Services**: Présentation des services offerts
+- **Projects**: Portfolio de projets réalisés
+- **GameDevelopment**: Section dédiée au développement de jeux
+- **WebDevelopment**: Section détaillant les projets web
+- **Contact**: Formulaire et informations de contact
+
+
+### Technologies utilisées
+
+Le projet utilise les technologies suivantes :
+- **React**: Framework JavaScript pour le développement frontend
+- **Styled Components**: Pour la gestion des styles CSS en JavaScript
+- **Framer Motion**: Bibliothèque d'animations pour React
+- **React Router**: Gestion du routage de l'application
+- **React Icons**: Bibliothèque d'icônes pour React
+- **Context API**: Pour la gestion d'état global (thème clair/sombre)
+
+
+### Fonctionnalités implémentées
+
+- **Thème Clair/Sombre**: Bascule entre les modes clair et sombre avec transitions fluides
+- **Navigation Responsive**: Menu hamburger pour les appareils mobiles
+- **Animations de Page**: Transitions entre les pages avec Framer Motion
+- **Scroll to Top**: Bouton pour remonter en haut de page
+- **Visibilité de la Navbar**: Contrôle de la visibilité basé sur le défilement et la route actuelle
+
+
+### Prochaines étapes
+
+- **Optimisation des performances**: Vérification et amélioration des performances de l'application
+- **Tests unitaires**: Mise en place de tests pour les composants principaux
+- **Déploiement**: Configuration du déploiement continu sur GitHub Pages ou Vercel
+- **SEO**: Optimisation pour les moteurs de recherche
+- **Accessibilité**: Amélioration de l'accessibilité selon les normes WCAG
+- **Intégration de contenu dynamique**: Possible intégration d'un CMS headless
+
+
+## Conclusion
+
+Le développement du portfolio est bien avancé avec les fonctionnalités principales implémentées. Le site est responsive, dispose d'animations fluides et offre une expérience utilisateur cohérente grâce au système de thème. Les prochaines étapes se concentreront sur l'optimisation, le déploiement et l'amélioration de l'accessibilité.
+
+Dernier commit: aa98002 - ayoub benammour, 8 minutes ago : Initial commit of portfolio website
+
+## Mise à jour du projet
+
+Le développement progresse, mais des améliorations sont nécessaires pour uniformiser l'expérience utilisateur entre les différentes pages. La page d'accueil (Home) présente actuellement les animations les plus avancées avec des effets de rotation, des animations au défilement, et des transitions fluides. Les autres pages comme About, Services, et Projects nécessitent une amélioration des animations pour atteindre le même niveau de sophistication.
+
+Priorités pour la prochaine phase:
+- Ajouter des animations de défilement sur toutes les pages secondaires
+- Implémenter des effets de rotation similaires à ceux de la page d'accueil
+- Améliorer les transitions entre les différentes sections de chaque page
+- Optimiser la performance des animations sur les appareils mobiles
+- Assurer la cohérence visuelle à travers l'ensemble du site
+
+Cette harmonisation des animations à travers toutes les pages est essentielle pour offrir une expérience utilisateur premium et cohérente, reflétant la qualité du travail présenté dans le portfolio.
+
+Prochain jalon: Uniformisation des animations à terminer avant le 15 juin 2024.
+
+
+## Mise à jour (25/07/2024) - Améliorations de la Page d'Accueil et Blobs
+
+**Animations et Effets sur la Page d'Accueil (`src/pages/Home.js`) :**
+
+*   **Blobs Animés en Arrière-Plan :**
+    *   Introduction de composants `HeroAnimatedBlob` et `SectionAnimatedBlob` pour créer des effets de fond dynamiques.
+    *   Définition de keyframes (`moveBlob1`, `moveBlob2`, `moveBlob3`) pour une animation fluide et continue des blobs.
+    *   Stylisation conditionnelle pour les thèmes clair (`#f4f3ef`) et sombre, affectant la couleur, le flou (`blur`) et le mode de fusion (`mix-blend-mode`).
+*   **Tentatives d'ajustement des Blobs en Mode Clair :**
+    *   Plusieurs itérations pour rendre les blobs visibles sur fond clair :
+        *   Initialement, tentative de copie des styles de `Contact.js` (avec `mix-blend-mode: multiply`), sans succès.
+        *   Passage à `mix-blend-mode: soft-light`.
+        *   Augmentation progressive et significative de l'opacité (alpha) des dégradés (`linear-gradient`) jusqu'à ~0.70.
+        *   Réduction progressive du `blur` jusqu'à `35px` pour améliorer la définition.
+    *   *Note : Malgré ces ajustements, la visibilité des blobs en mode clair reste un problème à résoudre.*
+*   **Animation de l'Image de Profil :**
+    *   Ajout d'un effet de flottement (`ProfileFloatingEffect`).
+    *   Cercles décoratifs animés (`ProfileDecorativeCircle`).
+    *   Animation de rotation (`ProfileAnimationCircle`) et de mise à l'échelle subtile (`ProfileImage`).
+    *   Effet de survol sur l'image (`ProfilePictureWrapper`).
+*   **Animations Textuelles (Hero Section) :**
+    *   Utilisation de `Framer Motion` (`textContainerVariants`, `textItemVariants`) pour animer l'apparition du Nom, Titre et Bio.
+*   **Animations au Défilement :**
+    *   Les cartes de projets (`ProjectCard`) et de compétences (`SkillCard`) apparaissent avec une animation (`whileInView`) lors du défilement.
+*   **Effets de Survol :**
+    *   Effets de survol améliorés sur les boutons principaux, les cartes de projet et les cartes de compétences.
+
+**Prochaines étapes spécifiques à ces modifications :**
+
+*   Revoir la stratégie de stylisation des blobs en mode clair pour assurer leur visibilité tout en conservant un aspect esthétique subtil.
+*   Valider la performance des animations sur différents navigateurs et appareils.
