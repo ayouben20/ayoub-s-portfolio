@@ -7,8 +7,8 @@ const ButtonWrapper = styled(motion.button)`
   position: fixed;
   bottom: 30px; // Adjusted position slightly
   right: 30px;  // Adjusted position slightly
-  width: 55px; // Slightly larger button
-  height: 55px; // Slightly larger button
+  width: 60px; // Larger button
+  height: 60px; // Larger button
   background-color: ${props => props.theme.primary};
   color: white; // Icon color
   border-radius: 50%;
@@ -29,8 +29,9 @@ const ButtonWrapper = styled(motion.button)`
   }
 
   svg {
-    font-size: 36px; // Even larger icon size
-    stroke-width: 3.5; // Even bolder
+    width: 36px;
+    height: 36px;
+    stroke-width: 2.5;
     color: white; // Ensure icon color is white
   }
 `;

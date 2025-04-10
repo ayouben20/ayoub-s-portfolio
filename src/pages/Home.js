@@ -21,15 +21,92 @@ const ProfileImageContainer = styled.div`
   margin-bottom: 2rem;
 `;
 
-const ProfileImage = styled.div`
+const ProfileFloatingEffect = styled(motion.div)`
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ProfilePictureWrapper = styled(motion.div)`
+  position: relative;
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  border: 5px solid ${props => props.theme.cardBackground};
-  background-image: url('/images/profile.jpg');
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(74, 144, 226, 0.3);
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 5px solid ${props => props.theme.cardBackground};
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const ProfileImage = styled(motion.div)`
+  width: 100%;
+  height: 100%;
+  background-image: url('./images/profile.JPG');
   background-size: cover;
   background-position: center;
   transition: border-color 0.3s ease;
+`;
+
+const ProfileAnimationCircle = styled(motion.div)`
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 1px dashed rgba(74, 144, 226, 0.4);
+  border-radius: 50%;
+  opacity: 0.7;
+`;
+
+const ProfileDecorativeCircle = styled(motion.div)`
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(74, 144, 226, 0.15);
+  
+  &:nth-child(1) {
+    top: 0;
+    left: 20%;
+  }
+  
+  &:nth-child(2) {
+    bottom: 10%;
+    right: 0;
+  }
+  
+  &:nth-child(3) {
+    bottom: 30%;
+    left: 0;
+  }
+`;
+
+const ProfilePictureHighlight = styled(motion.div)`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(74, 144, 226, 0.1) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  z-index: 1;
 `;
 
 const Name = styled(motion.h1)`
@@ -123,7 +200,7 @@ const SectionTitle = styled(motion.h2)`
 
 const SectionSubtitle = styled(motion.p)`
   font-size: 1.1rem;
-  color: ${props => props.theme.background === '#f8f9fa' ? '#495057' : props.theme.textSecondary};
+  color: ${props => props.theme.textSecondary};
   margin-bottom: 4rem;
   text-align: center;
   max-width: 700px;
@@ -190,6 +267,14 @@ const ProjectType = styled.span`
 const SkillsSection = styled.div`
   background-color: ${props => props.theme.background === '#f4f3ef' ? '#f9f8f6' : '#1a1a1a'};
   padding: 6rem 2rem;
+  
+  ${SectionTitle}, ${SectionSubtitle} {
+    color: ${props => props.theme.background === '#f4f3ef' ? '#333' : '#fff'};
+  }
+  
+  ${SectionSubtitle} {
+    color: ${props => props.theme.background === '#f4f3ef' ? '#555' : '#e0e0e0'};
+  }
 `;
 
 const SkillsContainer = styled.div`
@@ -518,7 +603,90 @@ const Home = () => {
       {/* Hero Section (Restored to top) */}
       <HeroSection>
         <ProfileImageContainer>
-          <ProfileImage />
+          <ProfileFloatingEffect
+            animate={{ 
+              y: [0, -15, 0],
+            }}
+            transition={{ 
+              duration: 6, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+          >
+            <ProfileDecorativeCircle 
+              animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 0.8, 0.5]
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity,
+                repeatType: "reverse" 
+              }}
+            />
+            <ProfileDecorativeCircle 
+              animate={{ 
+                scale: [1, 1.3, 1],
+                opacity: [0.4, 0.7, 0.4]
+              }}
+              transition={{ 
+                duration: 4, 
+                repeat: Infinity,
+                repeatType: "reverse",
+                delay: 1
+              }}
+            />
+            <ProfileDecorativeCircle 
+              animate={{ 
+                scale: [1, 1.4, 1],
+                opacity: [0.3, 0.6, 0.3]
+              }}
+              transition={{ 
+                duration: 5, 
+                repeat: Infinity,
+                repeatType: "reverse",
+                delay: 0.5
+              }}
+            />
+            
+            <ProfilePictureWrapper
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <ProfileAnimationCircle
+                animate={{ 
+                  rotate: 360
+                }}
+                transition={{ 
+                  duration: 20, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
+              />
+              <ProfileImage 
+                animate={{ 
+                  scale: [1, 1.03, 1]
+                }}
+                transition={{ 
+                  duration: 8, 
+                  repeat: Infinity,
+                  repeatType: "reverse" 
+                }}
+              />
+              <ProfilePictureHighlight 
+                animate={{ 
+                  opacity: [0.5, 0.7, 0.5], 
+                }}
+                transition={{ 
+                  duration: 2, 
+                  repeat: Infinity, 
+                  repeatType: "reverse" 
+                }}
+              />
+            </ProfilePictureWrapper>
+          </ProfileFloatingEffect>
         </ProfileImageContainer>
         
         <Name
