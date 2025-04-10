@@ -120,7 +120,7 @@ const ProfilePictureWrapper = styled(motion.div)`
 const ProfilePicture = styled(motion.div)`
   width: 100%;
   height: 100%;
-  background-image: url('/images/profile.jpg');
+  background-image: url('/images/profile.JPG');
   background-size: cover;
   background-position: center;
   border-radius: 50%;
