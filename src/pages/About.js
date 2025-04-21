@@ -1,9 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useScrollToTop } from '../utils/scrollUtils';
 import Footer from '../components/Footer';
+import { FaJs, FaReact, FaNode, FaHtml5, FaCss3Alt, FaUnity, FaCode, FaGamepad, FaTools, FaFigma } from 'react-icons/fa';
+import { SiTailwindcss, SiExpress, SiPython, SiMongodb, SiXampp, SiAdobe } from 'react-icons/si';
+import { FaBootstrap, FaPhp, FaLaravel, FaDatabase, FaGithub, FaMicrosoft, FaWordpress } from 'react-icons/fa';
+import { BsKanban } from 'react-icons/bs';
+import { VscCode } from 'react-icons/vsc';
 
 // Keyframes for blob animation
 const moveBlob1 = keyframes`
@@ -302,58 +307,75 @@ const SkillsTitle = styled.h3`
 
 const SkillsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(8, 1fr);
   gap: 1.5rem;
-  margin-top: 3rem;
+  margin: 8rem 0;
+  padding: 0 1rem;
+  margin-bottom: 8rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  @media (max-width: 400px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 `;
 
-const Skill = styled(motion.div)`
-  background: ${props => props.theme.cardBackground};
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+const SkillCard = styled(motion.div)`
+  background: ${({ theme }) => theme.card};
+  border-radius: 12px;
+  padding: 1rem;
   text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  
+  backdrop-filter: blur(10px);
+  border: 1px solid ${({ theme }) => theme.borderColor};
+
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    border-color: ${({ theme }) => theme.primary};
   }
 `;
 
 const SkillIcon = styled.div`
-  width: 60px;
-  height: 60px;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: ${({ theme }) => theme.text};
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  font-size: 2rem;
-  color: #4A90E2;
+  align-items: center;
+  
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover svg {
+    transform: scale(1.2);
+    color: ${({ theme }) => theme.primary};
+  }
 `;
 
 const SkillName = styled.p`
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: ${props => props.theme.text};
-  margin-bottom: 0.5rem;
-`;
-
-const SkillLevel = styled.div`
-  width: 100%;
-  height: 6px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+  margin: 0;
+  white-space: nowrap;
   overflow: hidden;
-  margin-top: 0.5rem;
-`;
-
-const SkillProgress = styled(motion.div)`
-  height: 100%;
-  background: #4A90E2;
-  border-radius: 3px;
+  text-overflow: ellipsis;
 `;
 
 // Page transition variants
@@ -413,35 +435,74 @@ const cardVariants = {
 };
 
 const About = () => {
-  // Use the scroll to top hook
+  const [particles, setParticles] = useState([]);
   useScrollToTop();
 
   const skills = [
-    { name: "JavaScript", level: 90, icon: "💻" },
-    { name: "React", level: 85, icon: "⚛️" },
-    { name: "Node.js", level: 80, icon: "🔧" },
-    { name: "HTML5", level: 95, icon: "🌐" },
-    { name: "CSS3", level: 90, icon: "🎨" },
-    { name: "Unity", level: 75, icon: "🎮" },
-    { name: "C#", level: 85, icon: "📱" },
-    { name: "Game Design", level: 80, icon: "🎯" },
-    { name: "3D Modeling", level: 65, icon: "🧊" },
-    { name: "UI/UX Design", level: 85, icon: "✏️" }
+    { name: "HTML5", icon: <FaHtml5 /> },
+    { name: "CSS3", icon: <FaCss3Alt /> },
+    { name: "Tailwind CSS", icon: <SiTailwindcss /> },
+    { name: "Bootstrap", icon: <FaBootstrap /> },
+    { name: "JavaScript", icon: <FaJs /> },
+    { name: "React.js", icon: <FaReact /> },
+    { name: "Next.js", icon: <FaCode /> },
+    { name: "PHP", icon: <FaPhp /> },
+    { name: "Laravel", icon: <FaLaravel /> },
+    { name: "Node.js", icon: <FaNode /> },
+    { name: "Express.js", icon: <SiExpress /> },
+    { name: "Python", icon: <SiPython /> },
+    { name: "C#", icon: <FaCode /> },
+    { name: "MySQL", icon: <FaDatabase /> },
+    { name: "MongoDB", icon: <SiMongodb /> },
+    { name: "Unity", icon: <FaUnity /> },
+    { name: "Git", icon: <FaGithub /> },
+    { name: "Visual Studio", icon: <FaMicrosoft /> },
+    { name: "VS Code", icon: <VscCode /> },
+    { name: "WordPress", icon: <FaWordpress /> },
+    { name: "Figma", icon: <FaFigma /> },
+    { name: "Scrum", icon: <BsKanban /> },
+    { name: "XAMPP", icon: <SiXampp /> },
+    { name: "Adobe", icon: <SiAdobe /> }
   ];
 
+  // Add particle generation effect
   useEffect(() => {
+    const generateParticles = () => {
+      const particleTypes = ['primary', 'secondary', 'accent', 'highlight', 'special'];
+      const newParticles = Array.from({ length: 120 }, (_, i) => ({
+        id: i,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * Math.max(document.documentElement.scrollHeight, window.innerHeight * 3),
+        size: Math.random() * 6 + 4,
+        duration: Math.random() * 20 + 15,
+        type: particleTypes[Math.floor(Math.random() * particleTypes.length)],
+        delay: Math.random() * 8,
+        rotationSpeed: Math.random() * 360,
+        moveDistance: Math.random() * 300 + 100
+      }));
+      setParticles(newParticles);
+    };
+
+    generateParticles();
+    
+    // Add scroll event listener to update particles
     const handleScroll = () => {
-      // Send event to parent to show navbar - ALWAYS SHOW
-      const event = new CustomEvent('navbar-visibility', { 
-        detail: { visible: true }
-      });
-      window.dispatchEvent(event);
+      const scrollHeight = Math.max(document.documentElement.scrollHeight, window.innerHeight * 3);
+      if (window.scrollY > scrollHeight * 0.7) {
+        generateParticles();
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
-    
+    window.addEventListener('resize', generateParticles);
+
+    // Regenerate particles more frequently
+    const regenerateInterval = setInterval(generateParticles, 10000);
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', generateParticles);
+      clearInterval(regenerateInterval);
     };
   }, []);
 
@@ -452,6 +513,7 @@ const About = () => {
       exit="exit"
       variants={pageVariants}
       transition={pageTransition}
+      style={{ position: 'relative', overflow: 'hidden' }}
     >
       {/* Animated Background Blobs */}
       <AnimatedBlob className="blob1" />
@@ -486,12 +548,7 @@ const About = () => {
               <Paragraph variants={itemVariants}>
                 My journey into development began with a curiosity about how digital products are built and a desire to create meaningful user experiences. This curiosity evolved into a deep passion for coding, design, and problem-solving. I'm constantly exploring new technologies and methodologies to enhance my skill set and deliver better results.
               </Paragraph>
-              <Paragraph variants={itemVariants}>
-                I believe in a user-centered approach to development, where understanding the end user's needs and experiences drives the creation of intuitive, accessible, and engaging solutions. This philosophy guides my work across both web and game development projects.
-              </Paragraph>
-              <Paragraph variants={itemVariants}>
-                When I'm not coding, I enjoy exploring new game mechanics, reading about UX design, and contributing to open source projects. I'm always open to new challenges and collaborations, so feel free to reach out if you have a project in mind.
-              </Paragraph>
+             
             </AboutText>
           </motion.div>
           
@@ -589,30 +646,7 @@ const About = () => {
           viewport={{ once: true, amount: 0.2 }}
           transition={{ staggerChildren: 0.1 }}
         >
-          <StatsContainer>
-            {[
-              { number: "5+", title: "Years Experience" },
-              { number: "50+", title: "Projects Completed" },
-              { number: "20+", title: "Happy Clients" },
-              { number: "10+", title: "Games Created" }
-            ].map((stat, index) => (
-              <StatItem
-                key={index}
-                variants={cardVariants}
-                custom={index}
-                whileHover={{ 
-                  y: -10, 
-                  rotate: [-1, 1, -1],
-                  transition: {
-                    rotate: { repeat: Infinity, duration: 0.5 }
-                  }
-                }}
-              >
-                <StatNumber>{stat.number}</StatNumber>
-                <StatTitle>{stat.title}</StatTitle>
-              </StatItem>
-            ))}
-          </StatsContainer>
+          
         </motion.div>
         
         <motion.div
@@ -624,26 +658,19 @@ const About = () => {
             <SkillsTitle>My Skills</SkillsTitle>
             <SkillsGrid>
               {skills.map((skill, index) => (
-                <Skill
+                <SkillCard
                   key={index}
                   variants={cardVariants}
                   custom={index}
                   whileHover={{ 
-                    y: -10, 
+                    y: -5, 
                     scale: 1.05,
-                    boxShadow: "0 15px 30px rgba(0, 0, 0, 0.15)"
+                    boxShadow: "0 8px 12px rgba(0, 0, 0, 0.15)"
                   }}
                 >
                   <SkillIcon>{skill.icon}</SkillIcon>
                   <SkillName>{skill.name}</SkillName>
-                  <SkillLevel>
-                    <SkillProgress
-                      initial={{ width: 0 }}
-                      animate={{ width: `${skill.level}%` }}
-                      transition={{ duration: 1, delay: 0.2 * index }}
-                    />
-                  </SkillLevel>
-                </Skill>
+                </SkillCard>
               ))}
             </SkillsGrid>
           </SkillsContainer>

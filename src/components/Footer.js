@@ -88,7 +88,7 @@ const FooterLinks = styled.ul`
 
 const FooterLink = styled.li`
   margin-bottom: 0.8rem;
-  
+
   a {
     color: #aaa;
     transition: all 0.3s ease;
@@ -109,7 +109,7 @@ const FooterLink = styled.li`
       transition: width 0.3s ease;
       -webkit-transition: width 0.3s ease;
     }
-    
+
     &:hover {
       color: #fff;
       &::after {
@@ -176,7 +176,7 @@ const Footer = () => {
             </SocialIcon>
           </FooterSocial>
         </FooterColumn>
-        
+
         <FooterColumn>
           <FooterTitle>Quick Links</FooterTitle>
           <FooterLinks>
@@ -187,7 +187,7 @@ const Footer = () => {
             <FooterLink><Link to="/contact">Contact</Link></FooterLink>
           </FooterLinks>
         </FooterColumn>
-        
+
         <FooterColumn>
           <FooterTitle>Services</FooterTitle>
           <FooterLinks>
@@ -222,7 +222,7 @@ const Footer = () => {
           </FooterContactItem>
         </FooterColumn>
       </FooterContent>
-      
+
       <FooterBottom>
         &copy; {new Date().getFullYear()} Ayoub Benammour. All rights reserved.
       </FooterBottom>

@@ -251,14 +251,16 @@ const Navbar = ({ themeToggler, theme }) => {
           <NavLink to="/about" active={location.pathname === '/about' ? 1 : 0}>
             About
           </NavLink>
-          <NavLink to="/web-development" active={location.pathname === '/web-development' ? 1 : 0}>
-            Web Dev
-          </NavLink>
-          <NavLink to="/game-development" active={location.pathname === '/game-development' ? 1 : 0}>
+          
+          {/* Game Dev section - Coming in v2.0 */}
+          {/* <NavLink to="/game-development" active={location.pathname === '/game-development' ? 1 : 0}>
             Game Dev
-          </NavLink>
+          </NavLink> */}
           <NavLink to="/services" active={location.pathname === '/services' ? 1 : 0}>
             Services
+          </NavLink>
+          <NavLink to="/projects" active={location.pathname === '/projects' ? 1 : 0}>
+            Projects
           </NavLink>
           <NavLink to="/contact" active={location.pathname === '/contact' ? 1 : 0}>
             Contact
@@ -287,12 +289,13 @@ const Navbar = ({ themeToggler, theme }) => {
             <MobileNavLink to="/about" active={location.pathname === '/about' ? 1 : 0}>
               About
             </MobileNavLink>
-            <MobileNavLink to="/web-development" active={location.pathname === '/web-development' ? 1 : 0}>
-              Web Development
+            <MobileNavLink to="/projects" active={location.pathname === '/projects' ? 1 : 0}>
+              Projects
             </MobileNavLink>
-            <MobileNavLink to="/game-development" active={location.pathname === '/game-development' ? 1 : 0}>
+            {/* Game Dev section - Coming in v2.0 */}
+            {/* <MobileNavLink to="/game-development" active={location.pathname === '/game-development' ? 1 : 0}>
               Game Development
-            </MobileNavLink>
+            </MobileNavLink> */}
             <MobileNavLink to="/services" active={location.pathname === '/services' ? 1 : 0}>
               Services
             </MobileNavLink>

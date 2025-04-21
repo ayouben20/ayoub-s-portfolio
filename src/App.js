@@ -13,6 +13,9 @@ import Projects from './pages/Projects';
 import GameDevelopment from './pages/GameDevelopment';
 import WebDevelopment from './pages/WebDevelopment';
 import Contact from './pages/Contact';
+import AddProject from './pages/AddProject';
+import { Link } from 'react-router-dom';
+import GlobalStyles from './styles/GlobalStyles';
 
 // Themes
 const lightTheme = {
@@ -78,10 +81,11 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/game-development" element={<GameDevelopment />} />
-        <Route path="/web-development" element={<WebDevelopment />} />
+        <Route path="/projects" element={<WebDevelopment />} />
+        {/* Game Development route - Coming in v2.0 */}
+        {/* <Route path="/game-development" element={<GameDevelopment />} /> */}
         <Route path="/contact" element={<Contact />} />
+        <Route path="/add-project" element={<AddProject />} />
       </Routes>
     </AnimatePresence>
   );
@@ -150,9 +154,12 @@ function App() {
 
   return (
     <ThemeProvider theme={currentTheme}>
+      <GlobalStyles />
       <GlobalStyle />
       <Router>
-        <Navbar themeToggler={themeToggler} theme={forceGameDevDarkMode ? 'dark' : theme} />
+        <Navbar themeToggler={themeToggler} theme={forceGameDevDarkMode ? 'dark' : theme}>
+          <Link to="/add-project">Add Project</Link>
+        </Navbar>
         <AppContainer>
           <AnimatedRoutes />
         </AppContainer>

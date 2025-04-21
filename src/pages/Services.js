@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import { useScrollToTop } from '../utils/scrollUtils';
@@ -312,10 +312,8 @@ const spinTransition = {
 };
 
 const Services = () => {
-  // Use the scroll to top hook
-  useScrollToTop();
-
-  const services = [
+  const [particles, setParticles] = useState([]);
+  const [services] = useState([
     {
       title: "Web Development",
       description: "Custom websites and web applications tailored to your specific needs and goals.",
@@ -349,9 +347,9 @@ const Services = () => {
         "Visual Design"
       ]
     }
-  ];
+  ]);
 
-  const processSteps = [
+  const [processSteps] = useState([
     {
       number: 1,
       title: "Discovery",
@@ -372,23 +370,10 @@ const Services = () => {
       title: "Delivery",
       description: "Finalizing, testing, and launching your project with ongoing support and maintenance."
     }
-  ];
+  ]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      // Send event to parent to show navbar - ALWAYS SHOW
-      const event = new CustomEvent('navbar-visibility', { 
-        detail: { visible: true }
-      });
-      window.dispatchEvent(event);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  // Use the scroll to top hook
+  useScrollToTop();
 
   return (
     <motion.div
@@ -397,6 +382,7 @@ const Services = () => {
       exit="exit"
       variants={pageVariants}
       transition={pageTransition}
+      style={{ position: 'relative', overflow: 'hidden' }}
     >
       {/* Animated Background Blobs */}
       <AnimatedBlob className="blob1" />
@@ -476,22 +462,25 @@ const Services = () => {
         </ServicesGrid>
         
         <ProcessSection>
-          <motion.div
+          <ProcessTitle
+            as={motion.h3}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: false }}
             variants={itemVariants}
           >
-            <ProcessTitle>My Work Process</ProcessTitle>
-          </motion.div>
-          
+            My Work Process
+          </ProcessTitle>
           <ProcessSteps>
             {processSteps.map((step, index) => (
               <ProcessStep
                 key={index}
+                as={motion.div}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false }}
                 variants={cardVariants}
                 custom={index}
-                initial="hidden"
-                animate="visible"
               >
                 <StepNumber>
                   <motion.div

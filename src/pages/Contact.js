@@ -352,33 +352,9 @@ const Contact = () => {
     message: ''
   });
   
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [particles, setParticles] = useState([]);
   
-  // Use the scroll to top hook
   useScrollToTop();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      // Show/hide scroll to top button
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
-      
-      // Send event to parent to show navbar - ALWAYS SHOW
-      const event = new CustomEvent('navbar-visibility', { 
-        detail: { visible: true }
-      });
-      window.dispatchEvent(event);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -402,11 +378,11 @@ const Contact = () => {
       exit="exit"
       variants={pageVariants}
       transition={pageTransition}
+      style={{ position: 'relative', overflow: 'hidden' }}
     >
       {/* Animated Background Blobs */}
       <AnimatedBlob className="blob1" />
       <AnimatedBlob className="blob2" />
-      <AnimatedBlob className="blob3" />
       
       <ContactContainer>
         <motion.div

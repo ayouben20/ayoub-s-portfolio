@@ -1,0 +1,74 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "title": "E-Commerce Platform",
+      "description": "A full-featured online store with user authentication, product filtering, and secure payment integration. Features include a responsive design, shopping cart functionality, and order tracking.",
+      "image": "/images/projects/1.jpg",
+      "type": "web",
+      "technologies": ["React", "Node.js", "MongoDB", "Express", "Stripe"],
+      "github": "https://github.com/yourusername/ecommerce-platform",
+      "live": "https://ecommerce-platform.demo.com"
+    },
+    {
+      "id": 2,
+      "title": "Dimensional Drift",
+      "description": "An innovative puzzle-platformer where players manipulate gravity and dimensions to solve challenging levels. Built with Unity and C#, featuring dynamic lighting and particle effects.",
+      "image": "/images/projects/2.jpg",
+      "type": "web",
+      "technologies": ["Unity", "C#", "Blender", "Adobe Photoshop"],
+      "github": "https://github.com/yourusername/dimensional-drift",
+      "live": "https://dimensional-drift.demo.com"
+    },
+    {
+      "id": 3,
+      "title": "Task Management System",
+      "description": "A collaborative task management application with real-time updates and drag-and-drop functionality. Features include team workspaces, task assignments, and progress tracking.",
+      "image": "/images/projects/3.jpg",
+      "type": "web",
+      "technologies": ["React", "Firebase", "Material-UI", "Redux"],
+      "github": "https://github.com/yourusername/task-manager",
+      "live": "https://task-manager.demo.com"
+    },
+    {
+      "id": 4,
+      "title": "Portfolio Website",
+      "description": "A personal portfolio website to showcase projects, skills, and experience. Fully responsive with smooth animations and a dark/light mode toggle.",
+      "image": "/images/projects/4.jpg",
+      "type": "web",
+      "technologies": ["Next.js", "Tailwind CSS", "Framer Motion"],
+      "github": "https://github.com/yourusername/portfolio-website",
+      "live": "https://portfolio.demo.com"
+    },
+    {
+      "id": 5,
+      "title": "AI Chatbot Assistant",
+      "description": "An intelligent chatbot powered by GPT-3.5 API for answering FAQs, booking appointments, and guiding users through product offerings.",
+      "image": "/images/projects/1.jpg",
+      "type": "web",
+      "technologies": ["React", "OpenAI API", "Node.js", "Socket.io"],
+      "github": "https://github.com/yourusername/ai-chatbot-assistant",
+      "live": "https://ai-chatbot.demo.com"
+    },
+    {
+      "id": 6,
+      "title": "Fitness Tracker App",
+      "description": "A mobile-first fitness tracker that lets users log workouts, set goals, track progress, and view analytics. Includes social features and gamification elements.",
+      "image": "/images/projects/3.jpg",
+      "type": "web",
+      "technologies": ["React Native", "Expo", "Firebase", "Chart.js"],
+      "github": "https://github.com/yourusername/fitness-tracker-app",
+      "live": "https://fitness-tracker.demo.com"
+    },
+    {
+      "id": 7,
+      "title": "Fitness Tracker App",
+      "description": "A mobile-first fitness tracker that lets users log workouts, set goals, track progress, and view analytics. Includes social features and gamification elements.",
+      "image": "/images/projects/3.jpg",
+      "type": "web",
+      "technologies": ["React Native", "Expo", "Firebase", "Chart.js"],
+      "github": "https://github.com/yourusername/fitness-tracker-app",
+      "live": "https://fitness-tracker.demo.com"
+    }   
+  ]
+} 

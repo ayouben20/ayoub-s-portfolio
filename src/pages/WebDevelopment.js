@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useInView } from 'framer-motion';
 import { useScrollToTop } from '../utils/scrollUtils';
 import Footer from '../components/Footer';
+import ReadyToStart from '../components/ReadyToStart';
+import { FaGithub, FaExternalLinkAlt, FaInfoCircle } from 'react-icons/fa';
 
 // Keyframes for blob animation
 const moveBlob1 = keyframes`
@@ -21,42 +23,45 @@ const moveBlob2 = keyframes`
 
 // Styled component for background blobs
 const AnimatedBlob = styled(motion.div)`
-  position: absolute;
+  position: fixed;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(108, 99, 255, 0.1));
-  filter: blur(50px); // Soft blur effect
-  z-index: 0; // Behind content
-  pointer-events: none; // Make it non-interactive
+  background: ${props => props.theme.mode === 'light' 
+    ? 'linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(108, 99, 255, 0.15))'
+    : 'linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(108, 99, 255, 0.1))'};
+  filter: blur(${props => props.theme.mode === 'light' ? '30px' : '50px'});
+  z-index: -1;
+  pointer-events: none;
 
   &.blob1 {
-    width: 350px;
-    height: 350px;
-    top: 10%;
-    left: 5%;
-    animation: ${moveBlob1} 15s infinite alternate ease-in-out;
+    width: 500px;
+    height: 500px;
+    top: 5%;
+    left: 0;
+    animation: ${moveBlob1} 25s infinite alternate ease-in-out;
+    opacity: ${props => props.theme.mode === 'light' ? '0.5' : '0.7'};
   }
 
   &.blob2 {
-    width: 280px;
-    height: 280px;
-    bottom: 15%;
-    right: 10%;
-    animation: ${moveBlob2} 18s infinite alternate ease-in-out;
-    animation-delay: -5s; // Offset animation start
+    width: 400px;
+    height: 400px;
+    bottom: 10%;
+    right: 0;
+    animation: ${moveBlob2} 30s infinite alternate ease-in-out;
+    animation-delay: -5s;
+    opacity: ${props => props.theme.mode === 'light' ? '0.5' : '0.7'};
   }
   
-  // Hide blobs on smaller screens where they might be too distracting
   @media (max-width: 768px) {
     display: none;
   }
 `;
 
 const WebDevContainer = styled.div`
-  padding: 8rem 2rem 4rem;
+  padding: 8rem 2rem 0;
   max-width: 1200px;
   margin: 0 auto;
   position: relative;
-  overflow: hidden;
+  min-height: 100vh;
 `;
 
 const SectionTitle = styled(motion.h2)`
@@ -144,7 +149,7 @@ const SkillDescription = styled.p`
 `;
 
 const ProjectsSection = styled.div`
-  margin-bottom: 6rem;
+  margin-bottom: 4rem;
 `;
 
 const CategoryFilter = styled.div`
@@ -180,118 +185,206 @@ const FilterButton = styled.button`
 
 const ProjectsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  margin-bottom: 3rem;
+  padding: 1rem 0;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const ProjectCard = styled(motion.div)`
-  background: ${props => props.theme.cardBackground};
-  border-radius: 10px;
+  background: ${props => props.theme.mode === 'light' ? '#ffffff' : props.theme.cardBackground};
+  border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  box-shadow: ${props => props.theme.mode === 'light' 
+    ? '0 4px 6px rgba(0, 0, 0, 0.02), 0 1px 3px rgba(0, 0, 0, 0.05)'
+    : '0 5px 15px rgba(0, 0, 0, 0.2)'};
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  border: ${props => props.theme.mode === 'light' ? '1px solid #edf2f7' : 'none'};
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px);
+    box-shadow: ${props => props.theme.mode === 'light'
+      ? '0 20px 40px rgba(0, 0, 0, 0.05)'
+      : '0 18px 35px rgba(0, 0, 0, 0.25)'};
   }
 `;
 
 const ProjectImage = styled.div`
   width: 100%;
-  height: 200px;
-  background-color: ${props => props.theme.background};
-  background-size: cover;
-  background-position: center;
-  position: relative;
+  height: 220px;
   overflow: hidden;
-  
-  &:after {
+  position: relative;
+  background: ${props => props.theme.mode === 'light' ? '#f8fafc' : '#2a2a2a'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      ${props => props.theme.mode === 'light' 
+        ? 'rgba(0, 0, 0, 0.2)'
+        : 'rgba(0, 0, 0, 0.6)'} 100%
+    );
+    z-index: 1;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  
-  ${ProjectCard}:hover &:after {
-    opacity: 1;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+    &:before {
+      opacity: 1;
+    }
   }
 `;
 
 const ProjectContent = styled.div`
   padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ProjectTitle = styled.h3`
   font-size: 1.25rem;
-  color: ${props => props.theme.text};
-  margin-bottom: 0.5rem;
+  color: ${props => props.theme.mode === 'light' ? '#2d3748' : props.theme.text};
+  margin-bottom: 0.8rem;
   font-weight: 600;
 `;
 
 const ProjectDescription = styled.p`
-  font-size: 0.9rem;
-  color: ${props => props.theme.textSecondary};
-  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: ${props => props.theme.mode === 'light' ? '#4a5568' : props.theme.textSecondary};
+  margin-bottom: 1.2rem;
   line-height: 1.6;
 `;
 
 const TechStack = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.8rem;
   margin-bottom: 1.5rem;
 `;
 
 const TechTag = styled.span`
-  background: ${props => props.theme.background};
-  color: ${props => props.theme.textSecondary};
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  background: ${props => props.theme.mode === 'light'
+    ? '#F5F3FF'
+    : 'rgba(139, 92, 246, 0.15)'};
+  color: ${props => props.theme.mode === 'light' ? '#6D28D9' : '#A78BFA'};
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  border: ${props => props.theme.mode === 'light' ? '1px solid #E9D5FF' : 'none'};
+
+  &:hover {
+    background: ${props => props.theme.mode === 'light'
+      ? '#EDE9FE'
+      : 'rgba(139, 92, 246, 0.25)'};
+    transform: translateY(-2px);
+  }
 `;
 
 const ProjectLinks = styled.div`
   display: flex;
   gap: 1rem;
+  margin-top: 1.5rem;
+  margin-top: auto;
 `;
 
 const ProjectLink = styled.a`
-  font-size: 0.9rem;
-  color: #4A90E2;
-  text-decoration: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 140px;
   
+  background: ${props => props.theme.mode === 'light' ? '#ffffff' : 'transparent'};
+  color: ${props => props.theme.mode === 'light' ? '#3182ce' : props.theme.text};
+  border: 1px solid ${props => props.theme.mode === 'light' ? '#3182ce' : props.theme.primary};
+  box-shadow: ${props => props.theme.mode === 'light' ? '0 2px 4px rgba(0, 0, 0, 0.05)' : 'none'};
+
   &:hover {
-    text-decoration: underline;
+    transform: translateY(-2px);
+    background: ${props => props.theme.mode === 'light' ? '#ebf8ff' : `${props.theme.primary}10`};
+    box-shadow: ${props => props.theme.mode === 'light'
+      ? '0 4px 12px rgba(49, 130, 206, 0.15)'
+      : '0 4px 12px rgba(0, 0, 0, 0.2)'};
   }
-  
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
   svg {
-    margin-right: 0.25rem;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateY(-1px);
   }
 `;
 
 const LoadMoreButton = styled(motion.button)`
-  background: transparent;
-  color: #4A90E2;
-  border: 1px solid #4A90E2;
-  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 3rem auto 0;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: ${props => props.theme.text};
+  background: ${props => props.theme.primary}10;
+  border: 2px solid ${props => props.theme.primary}30;
   border-radius: 30px;
-  display: block;
-  margin: 0 auto;
   cursor: pointer;
-  font-size: 1rem;
   transition: all 0.3s ease;
-  
+
   &:hover {
-    background: rgba(74, 144, 226, 0.1);
+    background: ${props => props.theme.primary};
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px ${props => props.theme.primary}30;
   }
 `;
 
@@ -390,102 +483,103 @@ const pageTransition = {
 };
 
 const containerVariants = {
-  hidden: { opacity: 0 },
+  hidden: { 
+    opacity: 0,
+    y: 30
+  },
   visible: {
     opacity: 1,
+    y: 0,
     transition: {
       staggerChildren: 0.15,
       delayChildren: 0.3,
+      duration: 0.6,
+      ease: "easeOut"
     }
   }
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { 
+    opacity: 0, 
+    y: 30 
+  },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { 
+      duration: 0.6, 
+      ease: "easeOut" 
+    }
   }
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.95 },
-  visible: (i) => ({
+  hidden: { 
+    opacity: 0,
+    y: 50
+  },
+  visible: { 
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      delay: i * 0.1,
       duration: 0.6,
-      ease: "easeInOut"
+      ease: "easeOut"
     }
-  })
-};
-
-// Floating animation for icons
-const floatAnimation = {
-  y: [0, -8, 0],
-  transition: {
-    duration: 4,
-    repeat: Infinity,
-    ease: "easeInOut"
   }
 };
 
-
 const WebDevelopment = () => {
+  const [projects, setProjects] = useState([]);
+  const [visibleProjects, setVisibleProjects] = useState(3);
+  const [loading, setLoading] = useState(true);
+
   // Use the scroll to top hook
   useScrollToTop();
 
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [displayedProjects, setDisplayedProjects] = useState(6);
-
-  const webSkills = [
-    { name: "Frontend Development", icon: "💻", description: "Building responsive and interactive user interfaces using React, Next.js, and modern CSS." },
-    { name: "Backend Development", icon: "🔧", description: "Creating robust server-side applications and APIs with Node.js, Express, and databases like MongoDB and PostgreSQL." },
-    { name: "Full-Stack Expertise", icon: "🌐", description: "Seamless integration of frontend and backend technologies for complete web solutions." },
-    { name: "API Integration", icon: "🔗", description: "Connecting web applications with third-party services and APIs for extended functionality." },
-    { name: "Database Management", icon: "💾", description: "Designing and managing efficient databases using SQL and NoSQL technologies." },
-    { name: "Cloud Deployment", icon: "☁️", description: "Deploying and managing web applications on platforms like Vercel, Netlify, and AWS." }
-  ];
-
-  const webProjects = [
-    { title: "E-Commerce Platform", description: "Full-featured online store with user auth, product filtering, and Stripe integration.", category: "E-commerce", image: "/images/project1.jpg", tech: ["React", "Node.js", "MongoDB", "Stripe"], liveLink: "#", codeLink: "#" },
-    { title: "Portfolio Website", description: "Personal portfolio showcasing projects with smooth animations and theme switching.", category: "Portfolio", image: "/images/project3.jpg", tech: ["React", "Framer Motion", "Styled Components"], liveLink: "#", codeLink: "#" },
-    { title: "Social Media App", description: "A platform for users to share updates, follow others, and engage with posts.", category: "Social", image: "/images/web-social.jpg", tech: ["React", "Firebase", "Redux"], liveLink: "#", codeLink: "#" },
-    { title: "Task Management Tool", description: "A collaborative tool for teams to manage tasks, projects, and deadlines effectively.", category: "Productivity", image: "/images/web-task.jpg", tech: ["Next.js", "Node.js", "PostgreSQL", "WebSockets"], liveLink: "#", codeLink: "#" },
-    { title: "Online Learning Platform", description: "An educational platform offering video courses, quizzes, and progress tracking.", category: "Education", image: "/images/web-lms.jpg", tech: ["React", "Express", "MongoDB", "Cloudinary"], liveLink: "#", codeLink: "#" },
-    { title: "Recipe Sharing Website", description: "A community-driven site for users to share, discover, and rate recipes.", category: "Community", image: "/images/web-recipe.jpg", tech: ["React", "Node.js", "MySQL"], liveLink: "#", codeLink: "#" },
-    { title: "Blog Platform", description: "A customizable blogging platform with rich text editing and user management.", category: "CMS", image: "/images/web-blog.jpg", tech: ["Next.js", "Sanity.io", "Tailwind CSS"], liveLink: "#", codeLink: "#" },
-    { title: "Real Estate Listing Site", description: "A platform for browsing property listings with advanced search and map integration.", category: "Marketplace", image: "/images/web-realestate.jpg", tech: ["React", "Node.js", "MongoDB", "Mapbox API"], liveLink: "#", codeLink: "#" }
-  ];
-
-  const categories = ['All', 'E-commerce', 'Portfolio', 'Social', 'Productivity', 'Education', 'Community', 'CMS', 'Marketplace'];
-
-  const filteredProjects = activeCategory === 'All' 
-    ? webProjects 
-    : webProjects.filter(p => p.category === activeCategory);
-
-  const loadMoreProjects = () => {
-    setDisplayedProjects(prev => prev + 6);
-  };
+  // Add an additional useEffect for immediate scroll reset
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant'
+    });
+  }, []); // Empty dependency array means this runs once when component mounts
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Send event to parent to show navbar - ALWAYS SHOW
-      const event = new CustomEvent('navbar-visibility', { 
-        detail: { visible: true }
-      });
-      window.dispatchEvent(event);
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/data/projects.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects');
+        }
+        const data = await response.json();
+        // Filter only web development projects
+        const webProjects = data.projects.filter(project => project.type === 'web');
+        setProjects(webProjects);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    fetchProjects();
   }, []);
+
+  const loadMore = () => {
+    setVisibleProjects(prev => {
+      const newValue = prev + 3;
+      // Smooth scroll to the newly loaded content
+      setTimeout(() => {
+        const lastProject = document.querySelector('.project-card:last-child');
+        if (lastProject) {
+          lastProject.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      return newValue;
+    });
+  };
 
   return (
     <motion.div
@@ -494,6 +588,7 @@ const WebDevelopment = () => {
       exit="exit"
       variants={pageVariants}
       transition={pageTransition}
+      style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
     >
       {/* Animated Background Blobs */}
       <AnimatedBlob className="blob1" />
@@ -501,165 +596,94 @@ const WebDevelopment = () => {
       
       <WebDevContainer>
         <motion.div
-          variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.3 }}
+          variants={containerVariants}
         >
           <SectionTitle variants={itemVariants}>
-            Web Development
+            Web Development Projects
           </SectionTitle>
           <SectionSubtitle variants={itemVariants}>
-            Building dynamic, responsive, and high-performance web solutions for diverse needs
+            A collection of my web development projects showcasing various technologies and solutions.
           </SectionSubtitle>
         </motion.div>
         
-        <SkillsSection>
-          <motion.div
-            initial={{ opacity: 1, y: 0 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <SkillsGrid>
-              {webSkills.map((skill, index) => (
-                <SkillCard
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: index * 0.1 
-                  }}
-                  whileHover={{ 
-                    y: -15, 
-                    boxShadow: "0 15px 30px rgba(74, 144, 226, 0.2)",
-                    transition: { duration: 0.3 }
-                  }}
-                >
-                  <SkillIcon>
-                    <motion.div animate={floatAnimation}>
-                      {skill.icon}
-                    </motion.div>
-                  </SkillIcon>
-                  <SkillName>{skill.name}</SkillName>
-                  <SkillDescription>{skill.description}</SkillDescription>
-                </SkillCard>
-              ))}
-            </SkillsGrid>
-          </motion.div>
-        </SkillsSection>
-        
         <ProjectsSection>
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-          >
-            <SectionTitle 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              Featured Web Projects
-            </SectionTitle>
-            <SectionSubtitle
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              A selection of web applications and sites I've developed
-            </SectionSubtitle>
-          </motion.div>
-          
-          <CategoryFilter>
-            {categories.map(category => (
-              <FilterButton
-                key={category}
-                active={activeCategory === category}
-                onClick={() => setActiveCategory(category)}
-                as={motion.button}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+          <ProjectsGrid>
+            {projects.slice(0, visibleProjects).map((project, index) => (
+              <motion.div
+                key={project.id}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{ delay: index * 0.1 }}
+                className="project-card"
               >
-                {category}
-              </FilterButton>
-            ))}
-          </CategoryFilter>
-          
-          <motion.div 
-            layout
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <ProjectsGrid>
-              {filteredProjects.slice(0, displayedProjects).map((project, index) => (
-                <ProjectCard
-                  key={project.title + activeCategory} // Add activeCategory to key for re-animation
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  whileHover={{ 
-                    y: -10,
-                    scale: 1.03,
-                    boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)",
-                    transition: { duration: 0.3 }
-                  }}
-                >
-                  <ProjectImage style={{ backgroundImage: `url(${project.image})` }} />
+                <ProjectCard>
+                  <ProjectImage>
+                    {loading ? (
+                      <div className="placeholder" />
+                    ) : project.image ? (
+                      <img 
+                        src={project.image} 
+                        alt={project.title}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/images/placeholder.jpg';
+                        }}
+                      />
+                    ) : (
+                      <div className="error-icon">🖼️</div>
+                    )}
+                  </ProjectImage>
                   <ProjectContent>
                     <ProjectTitle>{project.title}</ProjectTitle>
                     <ProjectDescription>{project.description}</ProjectDescription>
                     <TechStack>
-                      {project.tech.map((t, i) => (
-                        <TechTag key={i}>{t}</TechTag>
+                      {project.technologies.map((tech, i) => (
+                        <TechTag key={i}>{tech}</TechTag>
                       ))}
                     </TechStack>
                     <ProjectLinks>
                       <ProjectLink 
-                        href={project.liveLink} 
+                        href={project.github} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        as={motion.a}
-                        whileHover={{ x: 5 }}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                          <polyline points="15 3 21 3 21 9"></polyline>
-                          <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                        Live Demo
+                        <FaInfoCircle /> View Info
                       </ProjectLink>
-                      <ProjectLink 
-                        href={project.codeLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        as={motion.a}
-                        whileHover={{ x: 5 }}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                        </svg>
-                        View Code
-                      </ProjectLink>
+                      {project.live && (
+                        <ProjectLink 
+                          href={project.live} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          <FaExternalLinkAlt /> Live Demo
+                        </ProjectLink>
+                      )}
                     </ProjectLinks>
                   </ProjectContent>
                 </ProjectCard>
-              ))}
-            </ProjectsGrid>
-          </motion.div>
-          
-          {displayedProjects < filteredProjects.length && (
-            <LoadMoreButton
-              onClick={loadMoreProjects}
-              whileHover={{ scale: 1.05, backgroundColor: 'rgba(74, 144, 226, 0.1)' }}
-              whileTap={{ scale: 0.95 }}
+              </motion.div>
+            ))}
+          </ProjectsGrid>
+          {projects.length > 3 && visibleProjects < projects.length && (
+            <LoadMoreButton 
+              onClick={loadMore}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.5 }}
             >
               Load More Projects
+              <FaExternalLinkAlt />
             </LoadMoreButton>
           )}
         </ProjectsSection>
       </WebDevContainer>
-      
+      <ReadyToStart />
       <Footer />
     </motion.div>
   );
