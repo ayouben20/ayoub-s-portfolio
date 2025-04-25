@@ -16,6 +16,7 @@ import Contact from './pages/Contact';
 import AddProject from './pages/AddProject';
 import { Link } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
+import ProjectDetail from './components/ProjectDetail';
 
 // Themes
 const lightTheme = {
@@ -86,6 +87,7 @@ const AnimatedRoutes = () => {
         {/* <Route path="/game-development" element={<GameDevelopment />} /> */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/add-project" element={<AddProject />} />
+        <Route path="/project/:id" element={<ProjectDetail />} />
       </Routes>
     </AnimatePresence>
   );

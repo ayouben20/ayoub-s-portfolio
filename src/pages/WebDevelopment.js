@@ -5,6 +5,7 @@ import { useScrollToTop } from '../utils/scrollUtils';
 import Footer from '../components/Footer';
 import ReadyToStart from '../components/ReadyToStart';
 import { FaGithub, FaExternalLinkAlt, FaInfoCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 // Keyframes for blob animation
 const moveBlob1 = keyframes`
@@ -211,6 +212,7 @@ const ProjectCard = styled(motion.div)`
   display: flex;
   flex-direction: column;
   border: ${props => props.theme.mode === 'light' ? '1px solid #edf2f7' : 'none'};
+  cursor: pointer;
   
   &:hover {
     transform: translateY(-10px);
@@ -533,6 +535,7 @@ const WebDevelopment = () => {
   const [projects, setProjects] = useState([]);
   const [visibleProjects, setVisibleProjects] = useState(3);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Use the scroll to top hook
   useScrollToTop();
@@ -581,6 +584,10 @@ const WebDevelopment = () => {
     });
   };
 
+  const handleProjectClick = (project) => {
+    navigate(`/project/${project.id}`, { state: { project } });
+  };
+
   return (
     <motion.div
       initial="initial"
@@ -620,6 +627,7 @@ const WebDevelopment = () => {
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ delay: index * 0.1 }}
                 className="project-card"
+                onClick={() => handleProjectClick(project)}
               >
                 <ProjectCard>
                   <ProjectImage>

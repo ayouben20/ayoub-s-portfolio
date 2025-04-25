@@ -954,7 +954,7 @@ const Home = () => {
 
   useEffect(() => {
     // Update the document title when the component mounts
-    document.title = "Ayoub Benammour - Web & Game Developer";
+    document.title = "Ayoub Benammour";
     // Add meta description
     const metaDescription = document.querySelector('meta[name="description"]') || document.createElement('meta');
     metaDescription.setAttribute('name', 'description');
@@ -995,7 +995,6 @@ const Home = () => {
   const typewriterText = useTypewriter([
     'Ayoub Benammour',
     'Full Stack Developer',
-    'Game Developer'
   ], 75, 50, 1500);
 
   const webSkills = [
@@ -1121,7 +1120,7 @@ const Home = () => {
           <Title 
             variants={textItemVariants}
           >
-            Web & Game Developer
+            Web Developer
           </Title>
           <BioText 
              variants={textItemVariants}

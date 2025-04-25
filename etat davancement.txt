@@ -110,3 +110,44 @@ Prochain jalon: Uniformisation des animations à terminer avant le 15 juin 2024.
 
 *   Revoir la stratégie de stylisation des blobs en mode clair pour assurer leur visibilité tout en conservant un aspect esthétique subtil.
 *   Valider la performance des animations sur différents navigateurs et appareils.
+
+
+## Mise à jour (26/07/2024) - Améliorations des Animations et Navigation
+
+**Optimisations Majeures :**
+
+*   **Suppression des Particules Flottantes :**
+    *   Retrait complet du composant `FloatingParticles` de toutes les pages pour une interface plus épurée.
+    *   Nettoyage du code associé dans les composants Home, Services, Contact, et About.
+
+*   **Améliorations des Animations au Défilement :**
+    *   **Section "My Work Process" :**
+        *   Ajout d'animations déclenchées au défilement pour chaque étape du processus.
+        *   Animation séquentielle des étapes avec délais progressifs.
+        *   Conservation des animations originales des numéros d'étape.
+    
+    *   **Section "Ready to Start Your Project" :**
+        *   Implémentation d'animations au défilement pour le titre, la description et les boutons.
+        *   Utilisation de `whileInView` pour des animations plus naturelles.
+        *   Maintien de la cohérence visuelle avec le reste du site.
+
+*   **Optimisation de l'Affichage des Projets :**
+    *   Limitation à 3 projets affichés initialement dans la section WebDevelopment.
+    *   Ajout d'un bouton "Load More" qui apparaît uniquement s'il y a plus de 3 projets.
+    *   Animation fluide lors du chargement de nouveaux projets.
+
+*   **Améliorations Visuelles :**
+    *   Mise à jour des couleurs des tags technologiques vers une palette violette.
+    *   Amélioration de la visibilité en mode clair/sombre.
+    *   Ajout d'effets de survol subtils sur les tags.
+
+**Gestion du Code :**
+*   Création d'une nouvelle branche 'webportfolio' pour isoler les changements.
+*   Organisation et nettoyage du code pour une meilleure maintenabilité.
+*   Correction des erreurs ESLint et optimisation des imports.
+
+**Prochaines étapes :**
+*   Continuer l'harmonisation des animations à travers le site.
+*   Optimiser davantage les performances des animations.
+*   Tester la compatibilité cross-browser des nouvelles animations.
+*   Valider l'accessibilité des composants animés.
