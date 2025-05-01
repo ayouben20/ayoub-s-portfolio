@@ -1,215 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { motion } from 'framer-motion';
-import { FiArrowUp, FiMapPin, FiMail, FiPhone, FiGithub, FiLinkedin, FiTwitter } from 'react-icons/fi';
-import { useScrollToTop } from '../utils/scrollUtils';
+import styled from 'styled-components';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaInstagram, FaLinkedin, FaGithub, FaEnvelope, FaCheckCircle, FaTimesCircle, FaTimes, FaBehance, FaDribbble, FaFacebookF, FaTwitter } from 'react-icons/fa';
+import emailjs from '@emailjs/browser';
 import Footer from '../components/Footer';
 
-// Keyframes for blob animation
-const moveBlob1 = keyframes`
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(20px, -30px) scale(1.05); }
-  50% { transform: translate(-10px, 15px) scale(0.95); }
-  75% { transform: translate(15px, 5px) scale(1.02); }
-`;
-
-const moveBlob2 = keyframes`
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(-15px, 25px) scale(0.98); }
-  50% { transform: translate(10px, -10px) scale(1.03); }
-  75% { transform: translate(-5px, -15px) scale(1); }
-`;
-
-const moveBlob3 = keyframes`
-  0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  33% { transform: translate(25px, 10px) rotate(5deg) scale(1.05); }
-  66% { transform: translate(-15px, -20px) rotate(-5deg) scale(0.95); }
-`;
-
-// Styled component for background blobs
-const AnimatedBlob = styled(motion.div)`
-  position: absolute;
-  border-radius: 50%;
-  background: ${props => props.theme.background === '#f4f3ef' 
-    ? 'linear-gradient(135deg, rgba(74, 144, 226, 0.18), rgba(108, 99, 255, 0.15))'
-    : 'linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(108, 99, 255, 0.08))'
-  };
-  filter: ${props => props.theme.background === '#f4f3ef' 
-    ? 'blur(60px)'
-    : 'blur(40px)'
-  };
-  z-index: 0;
-  pointer-events: none;
-  mix-blend-mode: ${props => props.theme.background === '#f4f3ef' ? 'multiply' : 'screen'};
-
-  &.blob1 {
-    width: 300px;
-    height: 300px;
-    top: 15%;
-    left: 10%;
-    animation: ${moveBlob1} 15s infinite alternate ease-in-out;
-  }
-
-  &.blob2 {
-    width: 250px;
-    height: 250px;
-    bottom: 20%;
-    right: 15%;
-    animation: ${moveBlob2} 18s infinite alternate ease-in-out;
-    animation-delay: -5s;
-    background: ${props => props.theme.background === '#f4f3ef'
-      ? 'linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 146, 43, 0.15))'
-      : 'linear-gradient(135deg, rgba(255, 107, 107, 0.08), rgba(255, 146, 43, 0.08))'
-    };
-  }
-  
-  &.blob3 {
-    width: 200px;
-    height: 200px;
-    top: 50%;
-    left: 45%;
-    transform: translate(-50%, -50%);
-    animation: ${moveBlob3} 20s infinite alternate ease-in-out;
-    animation-delay: -8s;
-    background: ${props => props.theme.background === '#f4f3ef'
-      ? 'linear-gradient(135deg, rgba(99, 202, 183, 0.12), rgba(108, 170, 255, 0.12))'
-      : 'linear-gradient(135deg, rgba(99, 202, 183, 0.08), rgba(108, 170, 255, 0.08))'
-    };
-    opacity: 0.8;
-  }
-  
-  @media (max-width: 768px) {
-    opacity: 0.7;
-    &.blob3 {
-      display: none;
-    }
-  }
-`;
-
-const ContactContainer = styled.div`
-  padding: 6rem 2rem 4rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
+const PageContainer = styled.div`
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 100px);
-  justify-content: center;
+  background: ${props => props.theme.background};
+  overflow-x: hidden;
+  width: 100%;
 `;
 
-const SectionTitle = styled(motion.h2)`
+const MainContent = styled.div`
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8rem 2rem 4rem;
+  position: relative;
+  z-index: 1;
+`;
+
+const Title = styled(motion.h1)`
   font-size: 2.5rem;
+  font-weight: 700;
   color: ${props => props.theme.text};
+  text-align: center;
   margin-bottom: 1rem;
-  text-align: center;
-  font-weight: 500;
-`;
-
-const SectionSubtitle = styled(motion.p)`
-  font-size: 1.1rem;
-  color: ${props => props.theme.textSecondary};
-  margin-bottom: 4rem;
-  text-align: center;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-`;
-
-const ContactContent = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: center;
+  position: relative;
   
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: ${props => props.theme.primary};
+    border-radius: 2px;
+  }
+
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
+    font-size: 2rem;
   }
 `;
 
-const ContactInfo = styled.div`
+const Subtitle = styled.p`
+  text-align: center;
+  color: ${props => props.theme.textSecondary};
+  font-size: 1rem;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+  }
+`;
+
+const ContactForm = styled(motion.form)`
+  max-width: 800px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 `;
 
-const InfoItem = styled(motion.div)`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-`;
-
-const InfoIcon = styled.div`
-  width: 50px;
-  height: 50px;
-  background-color: ${props => props.theme.cardBackground};
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  color: ${props => props.theme.text};
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-`;
-
-const InfoContent = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const InfoTitle = styled.h3`
-  font-size: 1.25rem;
-  color: ${props => props.theme.text};
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-`;
-
-const InfoText = styled.p`
-  font-size: 1rem;
-  color: ${props => props.theme.textSecondary};
-  line-height: 1.6;
-`;
-
-const SocialLinks = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-`;
-
-const SocialLink = styled.a`
-  width: 40px;
-  height: 40px;
-  background-color: ${props => props.theme.cardBackground};
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  color: ${props => props.theme.text};
-  transition: all 0.3s ease;
+const InputRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
   
-  &:hover {
-    background-color: #4A90E2;
-    color: white;
-    transform: translateY(-3px);
-  }
-`;
-
-const ContactForm = styled(motion.form)`
-  background: ${props => props.theme.cardBackground};
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: ${props => props.theme.shadow};
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  border: 1px solid ${props => props.theme.borderColor};
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 `;
 
@@ -217,144 +87,254 @@ const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
 `;
 
-const Label = styled.label`
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: ${props => props.theme.text};
-`;
-
-const InputBase = `
+const Input = styled.input`
   width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid ${props => props.theme.borderColor};
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 1rem 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid ${props => props.theme.borderColor};
   color: ${props => props.theme.text};
-  background-color: ${props => props.theme.inputBackground || props.theme.background};
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 
   &:focus {
     outline: none;
     border-color: ${props => props.theme.primary};
-    box-shadow: 0 0 0 3px ${props => props.theme.primary}33;
   }
-`;
 
-const Input = styled.input`
-  ${InputBase}
   &::placeholder {
     color: ${props => props.theme.textSecondary};
-    opacity: 0.7;
   }
 `;
 
-const TextArea = styled.textarea`
-  ${InputBase}
-  min-height: 130px;
+const TextArea = styled(Input).attrs({ as: 'textarea' })`
+  min-height: 150px;
   resize: vertical;
-  &::placeholder {
-    color: ${props => props.theme.textSecondary};
-    opacity: 0.7;
-  }
+  border: none;
+  border-bottom: 1px solid ${props => props.theme.borderColor};
+  padding: 1rem 0;
+  margin-bottom: 1rem;
 `;
 
-const SubmitButton = styled.button`
-  background: ${props => props.theme.primary};
-  color: ${props => props.theme.buttonText || 'white'};
-  border: none;
-  padding: 0.8rem 1.7rem;
-  border-radius: 6px;
+const SubmitButton = styled(motion.button)`
+  align-self: center;
+  padding: 1rem 3rem;
+  background: transparent;
+  color: ${props => props.theme.primary};
+  border: 1px solid ${props => props.theme.primary};
+  border-radius: 4px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  align-self: flex-start;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  
-  svg {
-    transition: transform 0.3s ease;
-  }
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 
   &:hover {
-    background: ${props => props.theme.primaryHover || '#3a80d2'};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    background: ${props => props.theme.primary};
+    color: ${props => props.theme.background};
   }
-  
-  &:active {
-    transform: translateY(0px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 `;
 
-// Page transition variants
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    y: 20
-  },
-  in: {
-    opacity: 1,
-    y: 0
-  },
-  exit: {
-    opacity: 0,
-    y: -20
-  }
-};
+const CharacterCount = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: -1.5rem;
+  color: ${props => props.theme.textSecondary};
+  font-size: 0.8rem;
+`;
 
-const pageTransition = {
-  type: "tween",
-  ease: "anticipate",
-  duration: 0.5
-};
+const ErrorText = styled.span`
+  color: ${props => props.theme.error};
+  font-size: 0.8rem;
+  position: absolute;
+  bottom: -1.5rem;
+`;
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.3,
-    }
-  }
-};
+const SocialLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 4rem;
+`;
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
-  }
-};
+const SocialLink = styled(motion.a)`
+  color: ${props => props.theme.primary};
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+  padding: 1rem;
+  border-radius: 50%;
+  background: ${props => props.theme.text === '#333' ? '#1f1f1f' : 'rgba(0, 0, 0, 0.05)'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
 
-// Animation for form fields
-const fieldVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.5, ease: "easeOut" }
+  &:hover {
+    transform: translateY(-2px);
+    background: ${props => props.theme.primary};
+    color: #fff;
   }
-};
+`;
+
+const NotificationOverlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const NotificationPopup = styled(motion.div)`
+  background: ${props => props.theme.cardBackground};
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+`;
+
+const NotificationIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: ${props => props.success ? '#48BB78' : '#F56565'};
+`;
+
+const NotificationTitle = styled.h3`
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: ${props => props.theme.text};
+`;
+
+const NotificationMessage = styled.p`
+  color: ${props => props.theme.textSecondary};
+  margin-bottom: 1.5rem;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: ${props => props.theme.textSecondary};
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: ${props => props.theme.text};
+    transform: scale(1.1);
+  }
+`;
+
+const NotificationButton = styled(motion.button)`
+  background: ${props => props.theme.primary};
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px ${props => props.theme.primary}40;
+  }
+`;
+
+const Blob = styled.div`
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: ${props => props.theme.primary}10;
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+`;
+
+const TopBlob = styled(Blob)`
+  top: -300px;
+  right: -300px;
+`;
+
+const BottomBlob = styled(Blob)`
+  bottom: -300px;
+  left: -300px;
+`;
 
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: '',
     message: ''
   });
-  
-  const [particles, setParticles] = useState([]);
-  
-  useScrollToTop();
+  const [notification, setNotification] = useState({ show: false, success: false });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Validation rules
+  const restrictedEmails = [
+    'contact@ayoubben.com',
+    'ayoubbenammour23@gmail.com'
+  ];
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name validation
+    if (formData.name.length < 2) {
+      newErrors.name = 'Name must be at least 2 characters long';
+    }
+    if (formData.name.length > 50) {
+      newErrors.name = 'Name cannot exceed 50 characters';
+    }
+
+    // Email validation
+    if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    if (restrictedEmails.includes(formData.email.toLowerCase())) {
+      newErrors.email = 'This email address cannot be used';
+    }
+
+    // Message validation
+    if (formData.message.length < 10) {
+      newErrors.message = 'Message must be at least 10 characters long';
+    }
+    if (formData.message.length > 1000) {
+      newErrors.message = 'Message cannot exceed 1000 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -362,179 +342,249 @@ const Contact = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const closeNotification = () => {
+    setNotification({ show: false, success: false });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    alert("Thank you for your message! I'll get back to you soon.");
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      setNotification({
+        show: true,
+        success: false,
+        message: 'Please correct the errors in the form'
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    // Get current date and time
+    const now = new Date();
+    const time = now.toLocaleTimeString();
+    const date = now.toLocaleDateString();
+
+    try {
+      // Get location information
+      const location = await getLocation();
+
+      await emailjs.send(
+        'service_x228t9f',
+        'template_kgpo7mg',
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          subject: 'Contact Form Submission',
+          message: formData.message,
+          to_email: 'contact@ayoubben.com',
+          time: time,
+          date: date,
+          location: `${location.city}, ${location.country}`,
+          ip_address: location.ip
+        },
+        '9mU0sStU0JdR3T5nA'
+      );
+
+      setNotification({
+        show: true,
+        success: true,
+        message: 'Message sent successfully! I\'ll get back to you soon.'
+      });
+      setFormData({ name: '', email: '', message: '' });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setNotification({
+        show: true,
+        success: false,
+        message: 'There was an error sending your message. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getLocation = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      return {
+        city: data.city || 'Unknown',
+        country: data.country_name || 'Unknown',
+        ip: data.ip || 'Unknown'
+      };
+    } catch (error) {
+      console.error('Error getting location:', error);
+      return {
+        city: 'Unknown',
+        country: 'Unknown',
+        ip: 'Unknown'
+      };
+    }
   };
 
   return (
-    <motion.div
-      initial="initial"
-      animate="in"
-      exit="exit"
-      variants={pageVariants}
-      transition={pageTransition}
-      style={{ position: 'relative', overflow: 'hidden' }}
-    >
-      {/* Animated Background Blobs */}
-      <AnimatedBlob className="blob1" />
-      <AnimatedBlob className="blob2" />
-      
-      <ContactContainer>
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+    <PageContainer>
+      <TopBlob />
+      <BottomBlob />
+      <MainContent>
+        <Title
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <SectionTitle variants={itemVariants}>
-            Contact Me
-          </SectionTitle>
-          <SectionSubtitle variants={itemVariants}>
-            Have a project in mind or want to discuss collaboration opportunities? Get in touch!
-          </SectionSubtitle>
-        </motion.div>
-        
-        <ContactContent>
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
+          Contact Me
+        </Title>
+        <Subtitle>
+          Let's connect! Feel free to reach out for collaborations or just a friendly chat.
+        </Subtitle>
+
+        <ContactForm
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          onSubmit={handleSubmit}
+        >
+          <InputRow>
+            <FormGroup>
+              <Input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                maxLength={50}
+                placeholder="NAME *"
+                style={errors.name ? { borderColor: props => props.theme.error } : {}}
+              />
+              {errors.name && <ErrorText>{errors.name}</ErrorText>}
+            </FormGroup>
+
+            <FormGroup>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="EMAIL *"
+                style={errors.email ? { borderColor: props => props.theme.error } : {}}
+              />
+              {errors.email && <ErrorText>{errors.email}</ErrorText>}
+            </FormGroup>
+          </InputRow>
+
+          <FormGroup>
+            <TextArea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              required
+              maxLength={1000}
+              placeholder="MESSAGE *"
+              style={errors.message ? { borderColor: props => props.theme.error } : {}}
+            />
+            {errors.message && <ErrorText>{errors.message}</ErrorText>}
+            <CharacterCount>
+              {formData.message.length}/1000
+            </CharacterCount>
+          </FormGroup>
+
+          <SubmitButton
+            type="submit"
+            disabled={loading}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <ContactInfo>
-              <InfoItem variants={itemVariants}>
-                <InfoIcon>
-                  <motion.div 
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-                  >
-                    <FiMapPin />
-                  </motion.div>
-                </InfoIcon>
-                <InfoContent>
-                  <InfoTitle>Location</InfoTitle>
-                  <InfoText>Casablanca, Morocco</InfoText>
-                </InfoContent>
-              </InfoItem>
-              
-              <InfoItem variants={itemVariants}>
-                <InfoIcon>
-                  <motion.div 
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-                  >
-                    <FiMail />
-                  </motion.div>
-                </InfoIcon>
-                <InfoContent>
-                  <InfoTitle>Email</InfoTitle>
-                  <InfoText>ayoub.benammour.pro@gmail.com</InfoText>
-                </InfoContent>
-              </InfoItem>
-              
-              <InfoItem variants={itemVariants}>
-                <InfoIcon>
-                  <motion.div 
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 1.8, repeat: Infinity, repeatType: "reverse" }}
-                  >
-                    <FiPhone />
-                  </motion.div>
-                </InfoIcon>
-                <InfoContent>
-                  <InfoTitle>Phone</InfoTitle>
-                  <InfoText>+212 6 12 34 56 78</InfoText>
-                </InfoContent>
-              </InfoItem>
-              
-              <SocialLinks
-                as={motion.div}
-                variants={itemVariants}
-              >
-                <SocialLink href="https://github.com/ayoub-benammour" target="_blank" rel="noopener noreferrer" as={motion.a} whileHover={{ scale: 1.1, y: -5 }} transition={{ duration: 0.2 }}>
-                  <FiGithub />
-                </SocialLink>
-                <SocialLink href="https://linkedin.com/in/ayoub-benammour" target="_blank" rel="noopener noreferrer" as={motion.a} whileHover={{ scale: 1.1, y: -5 }} transition={{ duration: 0.2 }}>
-                  <FiLinkedin />
-                </SocialLink>
-                <SocialLink href="https://twitter.com/ayoub_benammour" target="_blank" rel="noopener noreferrer" as={motion.a} whileHover={{ scale: 1.1, y: -5 }} transition={{ duration: 0.2 }}>
-                  <FiTwitter />
-                </SocialLink>
-              </SocialLinks>
-            </ContactInfo>
-          </motion.div>
-          
-          <motion.div>
-            <ContactForm onSubmit={handleSubmit}>
-              <FormGroup>
-                <Label htmlFor="name">Name</Label>
-                <Input 
-                  type="text" 
-                  id="name" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="Enter your name"
-                />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="Enter your email address"
-                />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label htmlFor="subject">Subject</Label>
-                <Input 
-                  type="text" 
-                  id="subject" 
-                  name="subject" 
-                  value={formData.subject} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="What is the subject?"
-                />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label htmlFor="message">Message</Label>
-                <TextArea 
-                  id="message" 
-                  name="message" 
-                  value={formData.message} 
-                  onChange={handleChange} 
-                  required 
-                  placeholder="Your message here..."
-                />
-              </FormGroup>
-              
-              <SubmitButton 
-                type="submit"
-                as={motion.button} 
-                whileHover={{ /* Handled by CSS */ }}
-                whileTap={{ /* Handled by CSS */ }}
-              >
-                Send Message <FiArrowUp />
-              </SubmitButton>
-            </ContactForm>
-          </motion.div>
-        </ContactContent>
-      </ContactContainer>
-      
+            {loading ? 'Sending...' : 'Send Message'}
+          </SubmitButton>
+        </ContactForm>
+
+        <SocialLinks>
+          <SocialLink 
+            href="mailto:contact@ayoubben.com"
+            whileHover={{ y: -5 }}
+          >
+            <FaEnvelope />
+          </SocialLink>
+          <SocialLink 
+            href="https://www.instagram.com/ayoubbenammour22"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ y: -5 }}
+          >
+            <FaInstagram />
+          </SocialLink>
+          <SocialLink 
+            href="https://www.linkedin.com/in/ayoub-benammour/"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ y: -5 }}
+          >
+            <FaLinkedin />
+          </SocialLink>
+          <SocialLink 
+            href="https://github.com/ayouben20"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ y: -5 }}
+          >
+            <FaGithub />
+          </SocialLink>
+        </SocialLinks>
+      </MainContent>
+
       <Footer />
-    </motion.div>
+
+      <AnimatePresence>
+        {notification.show && (
+          <NotificationOverlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeNotification}
+          >
+            <NotificationPopup
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <CloseButton onClick={closeNotification}>
+                <FaTimes />
+              </CloseButton>
+              <NotificationIcon success={notification.success}>
+                {notification.success ? <FaCheckCircle /> : <FaTimesCircle />}
+              </NotificationIcon>
+              <NotificationTitle>
+                {notification.success ? 'Message Sent!' : 'Error'}
+              </NotificationTitle>
+              <NotificationMessage>
+                {notification.message}
+              </NotificationMessage>
+              <NotificationButton
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={closeNotification}
+              >
+                {notification.success ? 'Great!' : 'Try Again'}
+              </NotificationButton>
+            </NotificationPopup>
+          </NotificationOverlay>
+        )}
+      </AnimatePresence>
+    </PageContainer>
   );
 };
 

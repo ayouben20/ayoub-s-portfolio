@@ -2,73 +2,43 @@
   "projects": [
     {
       "id": 1,
-      "title": "E-Commerce Platform",
-      "description": "A full-featured online store with user authentication, product filtering, and secure payment integration. Features include a responsive design, shopping cart functionality, and order tracking.",
-      "image": "/images/projects/1.jpg",
+      "title": "Artivest",
+      "description": "A showcase website for Artivest, a high-end Moroccan marble company. Developed to highlight the brand's products and expertise through an elegant design, image galleries, and an admin interface for content management. The project included frontend and backend development, with a focus on usability and maintainability.",
+      "images": {
+        "mobile": "/images/projects/artivestmobile.png",
+        "screen": "/images/projects/artivest.png",
+        "desktop": "/images/projects/artivestdesktop.png"
+      },
       "type": "web",
-      "technologies": ["React", "Node.js", "MongoDB", "Express", "Stripe"],
-      "github": "https://github.com/yourusername/ecommerce-platform",
-      "live": "https://ecommerce-platform.demo.com"
+      "technologies": ["React", "Node.js", "MySQL","CSS"],
+      
+      "live": "https://projet1-black.vercel.app/"
     },
     {
       "id": 2,
-      "title": "Dimensional Drift",
-      "description": "An innovative puzzle-platformer where players manipulate gravity and dimensions to solve challenging levels. Built with Unity and C#, featuring dynamic lighting and particle effects.",
-      "image": "/images/projects/2.jpg",
+      "title": "Employee Engagement Portal",
+      "description": "A Laravel-based web application developed to foster employee engagement within the organization. The platform features tools to recognize achievements, track performance, and improve internal communication. Contributed to the development of key components during a professional internship.",
+      "images": {
+        "mobile": "fezf",
+        "screen": "/images/projects/nova.png",
+        "desktop": "/images/projects/novadesktop.png"
+      },
       "type": "web",
-      "technologies": ["Unity", "C#", "Blender", "Adobe Photoshop"],
-      "github": "https://github.com/yourusername/dimensional-drift",
-      "live": "https://dimensional-drift.demo.com"
+      "technologies": ["Laravel", "MySQL", "Tailwind CSS"]
     },
     {
       "id": 3,
-      "title": "Task Management System",
-      "description": "A collaborative task management application with real-time updates and drag-and-drop functionality. Features include team workspaces, task assignments, and progress tracking.",
-      "image": "/images/projects/3.jpg",
+      "title": "AGEP",
+      "description": "A web platform designed to streamline the management of paramedical teams at the Polyclinique Internationale de Laâyoune. It automates HR processes, improves internal communication, and facilitates performance tracking for medical staff.",
+      "images": {
+        "mobile": "/images/projects/polyphone.png",
+        "screen": "/images/projects/poly.png",
+        "desktop": "/images/projects/polydesktop.png"
+      },
       "type": "web",
-      "technologies": ["React", "Firebase", "Material-UI", "Redux"],
-      "github": "https://github.com/yourusername/task-manager",
-      "live": "https://task-manager.demo.com"
-    },
-    {
-      "id": 4,
-      "title": "Portfolio Website",
-      "description": "A personal portfolio website to showcase projects, skills, and experience. Fully responsive with smooth animations and a dark/light mode toggle.",
-      "image": "/images/projects/4.jpg",
-      "type": "web",
-      "technologies": ["Next.js", "Tailwind CSS", "Framer Motion"],
-      "github": "https://github.com/yourusername/portfolio-website",
-      "live": "https://portfolio.demo.com"
-    },
-    {
-      "id": 5,
-      "title": "AI Chatbot Assistant",
-      "description": "An intelligent chatbot powered by GPT-3.5 API for answering FAQs, booking appointments, and guiding users through product offerings.",
-      "image": "/images/projects/1.jpg",
-      "type": "web",
-      "technologies": ["React", "OpenAI API", "Node.js", "Socket.io"],
-      "github": "https://github.com/yourusername/ai-chatbot-assistant",
-      "live": "https://ai-chatbot.demo.com"
-    },
-    {
-      "id": 6,
-      "title": "Fitness Tracker App",
-      "description": "A mobile-first fitness tracker that lets users log workouts, set goals, track progress, and view analytics. Includes social features and gamification elements.",
-      "image": "/images/projects/3.jpg",
-      "type": "web",
-      "technologies": ["React Native", "Expo", "Firebase", "Chart.js"],
-      "github": "https://github.com/yourusername/fitness-tracker-app",
-      "live": "https://fitness-tracker.demo.com"
-    },
-    {
-      "id": 7,
-      "title": "Fitness Tracker App",
-      "description": "A mobile-first fitness tracker that lets users log workouts, set goals, track progress, and view analytics. Includes social features and gamification elements.",
-      "image": "/images/projects/3.jpg",
-      "type": "web",
-      "technologies": ["React Native", "Expo", "Firebase", "Chart.js"],
-      "github": "https://github.com/yourusername/fitness-tracker-app",
-      "live": "https://fitness-tracker.demo.com"
-    }   
+      "technologies": ["Laravel", "MySQL", "Bootstrap"],
+      "github": "",
+      "live": ""
+    }
   ]
 } 

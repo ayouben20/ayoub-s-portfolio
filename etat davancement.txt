@@ -151,3 +151,41 @@ Prochain jalon: Uniformisation des animations à terminer avant le 15 juin 2024.
 *   Optimiser davantage les performances des animations.
 *   Tester la compatibilité cross-browser des nouvelles animations.
 *   Valider l'accessibilité des composants animés.
+
+## Mise à jour (14/03/2024) - Optimisations SEO et Performance
+
+**Améliorations SEO et Performance :**
+
+*   **Composant SEO Amélioré (`src/components/SEO.js`) :**
+    *   Implémentation complète des meta tags pour une meilleure visibilité.
+    *   Ajout de Schema.org pour le rich snippets.
+    *   Configuration des Open Graph et Twitter Cards pour le partage social.
+    *   Préchargement des ressources critiques.
+    *   Configuration du domaine personnalisé (ayoubben.com).
+
+*   **Optimisation pour les Moteurs de Recherche :**
+    *   Création du fichier `sitemap.xml` avec structure complète.
+    *   Mise à jour du fichier `robots.txt` avec directives optimisées.
+    *   Configuration des priorités de crawling.
+    *   Ajout de balises canoniques.
+
+*   **Support PWA Amélioré :**
+    *   Mise à jour du `manifest.json` avec informations détaillées.
+    *   Configuration des icônes pour différentes tailles d'écran.
+    *   Optimisation pour l'installation sur mobile.
+    *   Ajout de catégories et descriptions pertinentes.
+
+*   **Améliorations Techniques :**
+    *   Optimisation des meta descriptions pour chaque page.
+    *   Configuration du domaine personnalisé.
+    *   Préparation pour l'indexation par les moteurs de recherche.
+    *   Structure de données enrichie pour une meilleure visibilité.
+
+**Prochaines étapes :**
+*   Configurer Google Search Console avec le nouveau domaine.
+*   Mettre en place le suivi analytique.
+*   Optimiser les images et ressources pour de meilleures performances.
+*   Implémenter la compression et la mise en cache.
+*   Tester et améliorer les scores de performance (Lighthouse, PageSpeed Insights).
+
+Dernier commit: [Commit précédent] - Optimisations SEO et configuration du domaine personnalisé

@@ -585,7 +585,7 @@ const WebDevelopment = () => {
   };
 
   const handleProjectClick = (project) => {
-    navigate(`/project/${project.id}`, { state: { project } });
+    navigate(`/projects/${project.title.toLowerCase().replace(/\s+/g, '-')}`);
   };
 
   return (
@@ -609,10 +609,10 @@ const WebDevelopment = () => {
           variants={containerVariants}
         >
           <SectionTitle variants={itemVariants}>
-            Web Development Projects
+            My Projects
           </SectionTitle>
           <SectionSubtitle variants={itemVariants}>
-            A collection of my web development projects showcasing various technologies and solutions.
+            A collection of my development projects showcasing various technologies and solutions.
           </SectionSubtitle>
         </motion.div>
         
@@ -627,20 +627,15 @@ const WebDevelopment = () => {
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ delay: index * 0.1 }}
                 className="project-card"
-                onClick={() => handleProjectClick(project)}
               >
-                <ProjectCard>
+                <ProjectCard onClick={() => handleProjectClick(project)}>
                   <ProjectImage>
                     {loading ? (
                       <div className="placeholder" />
-                    ) : project.image ? (
+                    ) : project.images.screen ? (
                       <img 
-                        src={project.image} 
+                        src={project.images.screen} 
                         alt={project.title}
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = '/images/placeholder.jpg';
-                        }}
                       />
                     ) : (
                       <div className="error-icon">🖼️</div>
@@ -656,17 +651,22 @@ const WebDevelopment = () => {
                     </TechStack>
                     <ProjectLinks>
                       <ProjectLink 
-                        href={project.github} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                        as="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProjectClick(project);
+                        }}
+                        style={{ cursor: 'pointer' }}
                       >
                         <FaInfoCircle /> View Info
                       </ProjectLink>
-                      {project.live && (
+                      {project.live && project.live !== "" && (
                         <ProjectLink 
                           href={project.live} 
                           target="_blank" 
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ background: '#4A90E2', color: '#fff', borderColor: '#4A90E2' }}
                         >
                           <FaExternalLinkAlt /> Live Demo
                         </ProjectLink>

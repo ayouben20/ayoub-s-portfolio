@@ -9,11 +9,11 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 import Home from './pages/Home';
 import About from './pages/About';
 import Services from './pages/Services';
-import Projects from './pages/Projects';
-import GameDevelopment from './pages/GameDevelopment';
 import WebDevelopment from './pages/WebDevelopment';
+import GameDevelopment from './pages/GameDevelopment';
 import Contact from './pages/Contact';
 import AddProject from './pages/AddProject';
+import NotFound from './pages/NotFound';
 import { Link } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
 import ProjectDetail from './components/ProjectDetail';
@@ -83,11 +83,11 @@ const AnimatedRoutes = () => {
         <Route path="/about" element={<About />} />
         <Route path="/services" element={<Services />} />
         <Route path="/projects" element={<WebDevelopment />} />
-        {/* Game Development route - Coming in v2.0 */}
-        {/* <Route path="/game-development" element={<GameDevelopment />} /> */}
+        <Route path="/projects/:projectTitle" element={<ProjectDetail />} />
+        <Route path="/game-development" element={<GameDevelopment />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/add-project" element={<AddProject />} />
-        <Route path="/project/:id" element={<ProjectDetail />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
   );

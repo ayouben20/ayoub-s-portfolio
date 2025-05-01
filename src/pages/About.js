@@ -4,9 +4,9 @@ import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useScrollToTop } from '../utils/scrollUtils';
 import Footer from '../components/Footer';
-import { FaJs, FaReact, FaNode, FaHtml5, FaCss3Alt, FaUnity, FaCode, FaGamepad, FaTools, FaFigma } from 'react-icons/fa';
-import { SiTailwindcss, SiExpress, SiPython, SiMongodb, SiXampp, SiAdobe } from 'react-icons/si';
-import { FaBootstrap, FaPhp, FaLaravel, FaDatabase, FaGithub, FaMicrosoft, FaWordpress } from 'react-icons/fa';
+import { FaJs, FaReact, FaNode, FaHtml5, FaCss3Alt, FaUnity, FaCode, FaGamepad, FaTools, FaFigma, FaMicrosoft } from 'react-icons/fa';
+import { SiTailwindcss, SiExpress, SiPython, SiMongodb, SiXampp, SiAdobe, SiNextdotjs, SiDotnet } from 'react-icons/si';
+import { FaBootstrap, FaPhp, FaLaravel, FaDatabase, FaGithub, FaWordpress } from 'react-icons/fa';
 import { BsKanban } from 'react-icons/bs';
 import { VscCode } from 'react-icons/vsc';
 
@@ -445,13 +445,13 @@ const About = () => {
     { name: "Bootstrap", icon: <FaBootstrap /> },
     { name: "JavaScript", icon: <FaJs /> },
     { name: "React.js", icon: <FaReact /> },
-    { name: "Next.js", icon: <FaCode /> },
+    { name: "Next.js", icon: <SiNextdotjs /> },
     { name: "PHP", icon: <FaPhp /> },
     { name: "Laravel", icon: <FaLaravel /> },
     { name: "Node.js", icon: <FaNode /> },
     { name: "Express.js", icon: <SiExpress /> },
     { name: "Python", icon: <SiPython /> },
-    { name: "C#", icon: <FaCode /> },
+    { name: "C#", icon: <SiDotnet /> },
     { name: "MySQL", icon: <FaDatabase /> },
     { name: "MongoDB", icon: <SiMongodb /> },
     { name: "Unity", icon: <FaUnity /> },
@@ -543,10 +543,10 @@ const About = () => {
           >
             <AboutText>
               <Paragraph variants={itemVariants}>
-                I'm Ayoub Benammour, a passionate developer with a focus on creating exceptional digital experiences through both web and game development. With several years of experience in the field, I've had the opportunity to work on a diverse range of projects, from responsive websites to immersive games.
+              I'm Ayoub Benammour, a passionate developer focused on creating exceptional digital experiences through web development. With several years of experience, I've worked on a diverse range of projects, from responsive websites to custom digital solutions.
               </Paragraph>
               <Paragraph variants={itemVariants}>
-                My journey into development began with a curiosity about how digital products are built and a desire to create meaningful user experiences. This curiosity evolved into a deep passion for coding, design, and problem-solving. I'm constantly exploring new technologies and methodologies to enhance my skill set and deliver better results.
+              My journey in development began with a curiosity about how digital products are built and a drive to create meaningful user experiences. This curiosity turned into a deep passion for coding, design, and problem-solving. I'm always exploring new technologies and methodologies to continuously improve and deliver top-quality results.
               </Paragraph>
              
             </AboutText>

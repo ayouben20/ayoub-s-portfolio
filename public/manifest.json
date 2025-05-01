@@ -1,19 +1,20 @@
 {
-  "short_name": "Ayoub Benammour",
-  "name": "Ayoub Benammour Portfolio",
+  "short_name": "Ayoub Ben",
+  "name": "Ayoub Benammour - Full Stack Developer Portfolio",
+  "description": "Professional portfolio of Ayoub Benammour, showcasing expertise in web development, game development, and custom software solutions",
   "icons": [
     {
       "src": "images/favicon.png",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "64x64",
       "type": "image/png"
     },
     {
-      "src": "images/favicon.png",
+      "src": "images/logo192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "images/favicon.png",
+      "src": "images/logo512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
@@ -21,5 +22,14 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "categories": ["portfolio", "web development", "developer", "Ayoub Benammour"],
+  "screenshots": [
+    {
+      "src": "images/screenshot1.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg"
+    }
+  ]
 }

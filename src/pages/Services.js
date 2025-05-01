@@ -62,9 +62,26 @@ const ServicesContainer = styled.div`
 const SectionTitle = styled(motion.h2)`
   font-size: 2.5rem;
   color: ${props => props.theme.text};
-  margin-bottom: 1rem;
   text-align: center;
-  font-weight: 500;
+  margin-bottom: 1rem;
+  position: relative;
+  font-weight: 700;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: ${props => props.theme.primary};
+    border-radius: 2px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
 `;
 
 const SectionSubtitle = styled(motion.p)`
@@ -145,24 +162,6 @@ const ServiceFeature = styled.li`
   
   &:last-child {
     border-bottom: none;
-  }
-`;
-
-const ServiceButton = styled.a`
-  background: transparent;
-  color: ${props => props.theme.primary};
-  border: 1px solid ${props => props.theme.primary};
-  padding: 0.6rem 1.5rem;
-  border-radius: 25px;
-  text-decoration: none;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: auto;
-  
-  &:hover {
-    background: ${props => props.theme.primary};
-    color: ${props => props.theme.buttonText};
   }
 `;
 
@@ -337,14 +336,13 @@ const Services = () => {
       ]
     },
     {
-      title: "UI/UX Design",
-      description: "Intuitive and attractive interfaces that enhance user experience and engagement.",
-      icon: "🎨",
+      title: " Custom Solutions",
+      description: "Delivering tailored software solutions to meet specific business needs, whether it's web applications, game mechanics, or backend systems.",
+      icon: "🔨",
       features: [
-        "User Research",
-        "Wireframing",
-        "Prototyping",
-        "Visual Design"
+        "Application & Web Development",
+        "Integration with Third-Party Services",
+        "Scalability"
       ]
     }
   ]);
@@ -446,17 +444,6 @@ const Services = () => {
                   </ServiceFeature>
                 ))}
               </ServiceFeatures>
-              <ServiceButton 
-                as={motion.a}
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)"
-                }}
-                whileTap={{ scale: 0.95 }}
-                href="#"
-              >
-                Learn More
-              </ServiceButton>
             </ServiceCard>
           ))}
         </ServicesGrid>

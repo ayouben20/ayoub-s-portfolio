@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useScrollToTop } from '../utils/scrollUtils';
 import Footer from '../components/Footer';
 import { FaReact, FaLaravel, FaNode, FaDatabase, FaGithub, FaCode, FaServer, FaGamepad, FaTools, FaChevronRight, FaHtml5, FaCss3Alt, FaBootstrap, FaJs, FaPhp, FaUnity, FaWordpress, FaFigma, FaMicrosoft, FaCode as FaCodeEditor } from 'react-icons/fa';
@@ -529,78 +529,91 @@ const SectionSubtitle = styled(motion.p)`
 
 const ProjectsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
-
-  @media (max-width: 480px) {
+  
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 1.2rem;
-    padding: 0 1rem;
+    max-width: 400px;
+    margin: 0 auto 2rem;
+    gap: 0.75rem;
   }
 `;
 
 const ProjectCard = styled(motion.div)`
   background: ${props => props.theme.cardBackground};
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  display: flex;
-  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  max-width: 330px;
+  margin: 0 auto;
   
   &:hover {
-    transform: translateY(-10px) rotate(1deg);
-    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
-
-    @media (hover: none) {
-      transform: none;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-  }
-
-  @media (max-width: 480px) {
-    margin: 0 auto;
-    width: 100%;
+    transform: translateY(-8px);
+    box-shadow: 0 0 25px rgba(74, 144, 226, 0.3);
+    z-index: 1;
   }
 `;
 
-const ProjectImage = styled.div`
+const ProjectImage = styled.img`
   width: 100%;
-  height: 220px;
-  background-color: ${props => props.theme.background};
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.4s ease;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+  transition: transform 0.5s ease;
+  position: relative;
 
-  @media (max-width: 768px) {
-    height: 200px;
-  }
-
-  @media (max-width: 480px) {
-    height: 180px;
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      ${({ theme }) => theme.mode === 'light' 
+        ? 'rgba(0, 0, 0, 0.2)'
+        : 'rgba(0, 0, 0, 0.6)'} 100%
+    );
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   ${ProjectCard}:hover & {
     transform: scale(1.05);
-
-    @media (hover: none) {
-      transform: none;
+    &:before {
+      opacity: 1;
     }
   }
 `;
 
 const ProjectContent = styled.div`
-  padding: 1.5rem;
+  padding: 1rem;
+`;
+
+const ProjectCategory = styled.span`
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: ${props => props.theme.primary};
+  color: white;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
 `;
 
 const ProjectTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   color: ${props => props.theme.text};
   margin-bottom: 0.5rem;
   font-weight: 600;
@@ -609,18 +622,27 @@ const ProjectTitle = styled.h3`
 const ProjectDescription = styled.p`
   font-size: 0.9rem;
   color: ${props => props.theme.textSecondary};
-  margin-bottom: 1rem;
-  line-height: 1.6;
+  line-height: 1.5;
 `;
 
-const ProjectType = styled.span`
-  display: inline-block;
-  padding: 0.3rem 1rem;
-  background: ${props => props.type === 'web' ? '#4A90E2' : '#6C63FF'};
-  color: white;
-  border-radius: 20px;
+const TechStack = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+`;
+
+const TechTag = styled.span`
+  padding: 0.3rem 0.8rem;
+  background: ${props => props.theme.background};
+  color: ${props => props.theme.text};
+  border-radius: 15px;
   font-size: 0.8rem;
-  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+
+  ${ProjectCard}:hover & {
+    transform: translateY(-2px);
+  }
 `;
 
 const ExpertiseSection = styled.div`
@@ -926,9 +948,72 @@ const CTAButtonsContainer = styled.div`
   }
 `;
 
+// Add these styled components before the Home component
+const ProjectsSection = styled.section`
+  padding: 4rem 2rem;
+  background: ${props => props.theme.background};
+  position: relative;
+  overflow: hidden;
+`;
+
+const ProjectsContainer = styled.div`
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+`;
+
+const SectionHeader = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
+const SectionDescription = styled.p`
+  font-size: 1.2rem;
+  color: ${props => props.theme.textSecondary};
+  max-width: 600px;
+  margin: 0 auto;
+`;
+
+// Add these styled components for the project section blobs
+const ProjectBlob = styled(motion.div)`
+  position: absolute;
+  border-radius: 50%;
+  background: ${props => props.theme.background === '#f4f3ef' 
+    ? 'linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(108, 99, 255, 0.15))'
+    : 'linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(108, 99, 255, 0.08))'
+  };
+  filter: blur(40px);
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.8;
+
+  &.blob1 {
+    width: 400px;
+    height: 400px;
+    top: 10%;
+    left: 5%;
+    animation: ${moveBlob1} 25s infinite alternate ease-in-out;
+  }
+
+  &.blob2 {
+    width: 350px;
+    height: 350px;
+    bottom: 15%;
+    right: 10%;
+    animation: ${moveBlob2} 30s infinite alternate ease-in-out;
+    background: ${props => props.theme.background === '#f4f3ef'
+      ? 'linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 146, 43, 0.15))'
+      : 'linear-gradient(135deg, rgba(255, 107, 107, 0.08), rgba(255, 146, 43, 0.08))'
+    };
+  }
+`;
+
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Use the scroll to top hook
   useScrollToTop();
@@ -994,17 +1079,18 @@ const Home = () => {
 
   const typewriterText = useTypewriter([
     'Ayoub Benammour',
-    'Full Stack Developer',
+    'Full Stack Web Developer',
   ], 75, 50, 1500);
 
   const webSkills = [
-    { name: "Frontend Development", icon: "💻", description: "Building responsive and interactive user interfaces using React, Next.js, and modern CSS." },
-    { name: "Backend Development", icon: "🔧", description: "Creating robust server-side applications and APIs with Node.js, Express, and databases like MongoDB and PostgreSQL." },
-    { name: "Full-Stack Expertise", icon: "🌐", description: "Seamless integration of frontend and backend technologies for complete web solutions." },
-    { name: "API Integration", icon: "🔗", description: "Connecting web applications with third-party services and APIs for extended functionality." },
-    { name: "Database Management", icon: "💾", description: "Designing and managing efficient databases using SQL and NoSQL technologies." },
-    { name: "Cloud Deployment", icon: "☁️", description: "Deploying and managing web applications on platforms like Vercel, Netlify, and AWS." }
-  ];
+    { name: "Frontend Development", icon: "🖥️", description: "Building responsive and interactive user interfaces using React and Next.js." },
+    { name: "Backend Development", icon: "🛠️", description: "Creating robust server-side applications and APIs with Node.js, Express, and MongoDB." },
+    { name: "Full-Stack Expertise", icon: "🌍", description: "Seamless integration of frontend and backend technologies to deliver complete web solutions that are scalable and efficient." },
+    { name: "Database Management", icon: "🗄️", description: "Designing and managing efficient databases using SQL and NoSQL technologies." },
+    { name: "Version Control", icon: "🔄", description: "Efficiently using Git and GitHub for version control, enabling smooth collaboration and code management in team projects." },
+    { name: "Cloud Deployment", icon: "☁️", description: "Deploying and managing web applications on platforms like Vercel, Netlify, and AWS." },
+    { name: "Performance Optimization", icon: "⚡", description: "Optimizing the performance of web applications, focusing on load times, smooth transitions, and user experience to ensure faster." }
+];
 
   return (
     <motion.div
@@ -1120,15 +1206,12 @@ const Home = () => {
           <Title 
             variants={textItemVariants}
           >
-            Web Developer
+            Welcome to my Portfolio
           </Title>
           <BioText 
              variants={textItemVariants}
           >
-            A versatile developer with expertise in both web and game development. 
-            Delivering polished, user-centered experiences with a focus on clean code and 
-            engaging interfaces. Committed to creating memorable digital solutions that 
-            combine technical excellence with creative design.
+          I’m a passionate web developer specializing in creating dynamic and responsive web applications. I focus on delivering efficient, scalable, and user-friendly solutions that solve real-world problems.
           </BioText>
         </motion.div>
         <ButtonContainer>
@@ -1162,53 +1245,60 @@ const Home = () => {
       </HeroSection>
       
       {/* Featured Projects Section */}
-      <SectionContainer>
-        {/* Add Section Blobs */}
-        <SectionAnimatedBlob className="blob1" style={{ top: '5%', left: '70%', width: '250px', height: '250px' }} /> 
-        <SectionAnimatedBlob className="blob2" style={{ bottom: '10%', left: '10%', width: '300px', height: '300px' }} />
-        <SectionTitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          Featured Projects
-        </SectionTitle>
-        <SectionSubtitle
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          A selection of my recent work in web and game development
-        </SectionSubtitle>
-        
-        <ProjectsGrid>
-          {loading ? (
-            <LoadingSpinner />
-          ) : (
-            projects.map((project, index) => (
+      <ProjectsSection>
+        <ProjectBlob className="blob1" 
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 0.8, scale: 1 }}
+          transition={{ duration: 1 }}
+        />
+        <ProjectBlob className="blob2"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 0.8, scale: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        />
+        <ProjectsContainer>
+          <SectionHeader>
+            <SectionTitle>Featured Projects</SectionTitle>
+            <SectionDescription>
+              A selection of my recent work in web development
+            </SectionDescription>
+          </SectionHeader>
+          
+          <ProjectsGrid>
+            {projects.map((project, index) => (
               <ProjectCard
-                key={project.id || index}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-                custom={index}
+                key={project.id}
+                onClick={() => navigate(`/projects/${project.title.toLowerCase().replace(/\s+/g, '-')}`)}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{
+                  duration: 0.6,
+                  delay: index * 0.2,
+                  ease: [0.22, 1, 0.36, 1]
+                }}
               >
-                <ProjectImage style={{ backgroundImage: `url(${project.image})` }} />
+                <ProjectImage src={project.images.screen} alt={project.title} />
                 <ProjectContent>
-                  <ProjectType type={project.type}>
-                    {project.type === 'web' ? 'Web Development' : 'Game Development'}
-                  </ProjectType>
+                  <ProjectCategory>Web Development</ProjectCategory>
                   <ProjectTitle>{project.title}</ProjectTitle>
                   <ProjectDescription>{project.description}</ProjectDescription>
                 </ProjectContent>
               </ProjectCard>
-            ))
-          )}
-        </ProjectsGrid>
-        
-        <ViewAllLink to="/projects">View All Projects →</ViewAllLink>
-      </SectionContainer>
+            ))}
+          </ProjectsGrid>
+          
+          <ViewAllLink 
+            to="/projects"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            View All Projects <FaChevronRight style={{ marginLeft: '5px' }} />
+          </ViewAllLink>
+        </ProjectsContainer>
+      </ProjectsSection>
       
       {/* Skills Section */}
       <ExpertiseSection>
@@ -1284,8 +1374,7 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          Whether you're looking for a stunning website, an engaging game, or a custom digital solution,
-          I'm here to help bring your vision to life. Let's collaborate to create something amazing together.
+         Looking for a stunning website, a custom digital solution, or efficient web development? I'm here to turn your ideas into reality. Let's collaborate and create something amazing together.
         </CTAText>
         <CTAButtonsContainer>
           <Button
